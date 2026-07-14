@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sachin – Financial Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --primary:       #1e40af;
+            --primary-light: #3b82f6;
+            --secondary:     #0f766e;
+            --accent:        #d97706;
+            --success:       #059669;
+            --danger:        #dc2626;
+            --bg:            #f1f5f9;
+            --card:          #ffffff;
+            --text:          #1e293b;
+            --muted:         #64748b;
+            --border:        #e2e8f0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            background: linear-gradient(135deg, #0f2460 0%, #1e40af 60%, #2563eb 100%);
+            color: #fff;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1   { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.3px; }
+        .header p    { font-size: 0.8rem; opacity: 0.75; margin-top: 3px; }
+        .header-right { text-align: right; font-size: 0.78rem; opacity: 0.8; line-height: 1.6; }
+
+        /* ── LAYOUT ── */
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px 16px 40px; }
+
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr;        gap: 16px; margin-bottom: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+
+        @media (max-width: 900px) {
+            .grid-4 { grid-template-columns: repeat(2, 1fr); }
+            .grid-3 { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 620px) {
+            .grid-4, .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        }
+
+        /* ── CARD ── */
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+        }
+        .card-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        /* ── KPI ── */
+        .kpi-value   { font-size: 1.65rem; font-weight: 800; color: var(--primary); }
+        .kpi-label   { font-size: 0.78rem; color: var(--muted); margin-top: 3px; }
+        .kpi-sub     { font-size: 0.72rem; color: var(--success); margin-top: 3px; font-weight: 600; }
+        .kpi-sub.warn{ color: var(--accent); }
+
+        /* ── SECTION TITLE ── */
+        .section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 14px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid var(--primary);
+            display: inline-block;
+        }
+        .section-wrap { margin-bottom: 28px; }
+
+        /* ── TABLE ── */
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            text-align: left;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+            padding: 8px 10px;
+            border-bottom: 2px solid var(--border);
+        }
+        td { padding: 9px 10px; font-size: 0.845rem; border-bottom: 1px solid var(--border); }
+        tr:last-child td { border-bottom: none; }
+        .tr-total td { background: #f8fafc; font-weight: 700; }
+        .tr-warn  td { background: #fffbeb; }
+        .amt { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+        /* ── TAG ── */
+        .tag {
+            display: inline-block;
+            padding: 1px 7px;
+            border-radius: 100px;
+            font-size: 0.67rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .tag-blue   { background: #dbeafe; color: #1e40af; }
+        .tag-green  { background: #d1fae5; color: #065f46; }
+        .tag-amber  { background: #fef3c7; color: #92400e; }
+        .tag-purple { background: #ede9fe; color: #5b21b6; }
+        .tag-teal   { background: #ccfbf1; color: #0f766e; }
+        .tag-pink   { background: #fce7f3; color: #9d174d; }
+
+        /* ── PROGRESS GOALS ── */
+        .goal-item   { margin-bottom: 18px; }
+        .goal-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+        .goal-name   { font-size: 0.875rem; font-weight: 700; }
+        .goal-pct    { font-size: 0.75rem; color: var(--muted); }
+        .prog-bg     { background: var(--border); border-radius: 100px; height: 9px; overflow: hidden; }
+        .prog-fill   { height: 100%; border-radius: 100px; transition: width .6s ease; }
+        .goal-footer { display: flex; justify-content: space-between; margin-top: 5px; font-size: 0.72rem; color: var(--muted); }
+        .placeholder { color: #94a3b8; font-style: italic; }
+
+        /* ── INSURANCE CARDS ── */
+        .ins-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .ins-icon {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .ins-name  { font-size: 0.75rem; color: var(--muted); }
+        .ins-value { font-size: 1.05rem; font-weight: 800; }
+        .ins-note  { font-size: 0.7rem; margin-top: 2px; }
+
+        /* ── ALERT BOX ── */
+        .alert {
+            padding: 11px 14px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 0.84rem;
+            display: flex;
+            gap: 10px;
+            line-height: 1.5;
+        }
+        .alert-warn    { background: #fef3c7; border-left: 3px solid #f59e0b; }
+        .alert-info    { background: #dbeafe; border-left: 3px solid #3b82f6; }
+        .alert-success { background: #d1fae5; border-left: 3px solid #10b981; }
+        .alert-danger  { background: #fee2e2; border-left: 3px solid #dc2626; }
+        .alert-icon    { flex-shrink: 0; font-size: 1rem; }
+
+        /* ── CHARTS ── */
+        .chart-h260 { position: relative; height: 260px; }
+        .chart-h320 { position: relative; height: 320px; }
+
+        /* ── FOOTER ── */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--muted);
+            font-size: 0.72rem;
+            border-top: 1px solid var(--border);
+            margin-top: 8px;
+        }
+
+        /* ── NET WORTH BADGE ── */
+        .nw-trend {
+            display: inline-block;
+            background: #d1fae5;
+            color: #065f46;
+            padding: 2px 10px;
+            border-radius: 100px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════ HEADER -->
+<div class="header">
+    <div>
+        <h1>💰 Sachin's Financial Dashboard</h1>
+        <p>Personal Finance Tracker · Updated July 2026 · Keep this file private</p>
+    </div>
+    <div class="header-right">
+        <div>Sachin V N · Age 32</div>
+        <div>Product Manager</div>
+        <div style="margin-top:4px;font-size:0.7rem;opacity:0.6">github.com/sachinvn22</div>
+    </div>
+</div>
+
+<div class="container">
+
+<!-- ════════════════════════════════════════════════ KPI CARDS -->
+<div class="section-wrap">
+    <div class="grid-4">
+        <div class="card">
+            <div class="card-title">Total Net Worth</div>
+            <div class="kpi-value">₹12.59L</div>
+            <div class="nw-trend">↑ Building wealth</div>
+            <div class="kpi-label" style="margin-top:6px">All assets combined</div>
+        </div>
+        <div class="card">
+            <div class="card-title">Household Income</div>
+            <div class="kpi-value">₹2.90L</div>
+            <div class="kpi-sub">₹34.8L per year</div>
+            <div class="kpi-label">Sachin ₹2.70L + Wife ₹0.20L</div>
+        </div>
+        <div class="card">
+            <div class="card-title">Monthly Invested</div>
+            <div class="kpi-value">₹70,500</div>
+            <div class="kpi-sub warn">₹29,500 capacity unused ⚡</div>
+            <div class="kpi-label">Of ₹1L monthly capacity</div>
+        </div>
+        <div class="card">
+            <div class="card-title">Savings Rate</div>
+            <div class="kpi-value">24.3%</div>
+            <div class="kpi-sub warn">Target: 35%+</div>
+            <div class="kpi-label">Investments ÷ income</div>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ CHARTS ROW -->
+<div class="section-wrap">
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-title">Asset Allocation · ₹12,58,568 total</div>
+            <div class="chart-h260">
+                <canvas id="assetChart"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">Monthly Cash Flow · ₹2,90,000 income</div>
+            <div class="chart-h260">
+                <canvas id="cashFlowChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ PORTFOLIO + SIPS -->
+<div class="section-wrap">
+    <div class="grid-2">
+
+        <!-- Current Portfolio -->
+        <div class="card">
+            <div class="card-title">Current Portfolio Breakdown</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Asset</th>
+                        <th>Category</th>
+                        <th style="text-align:right">Current Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Mutual Funds (Equity)</td>
+                        <td><span class="tag tag-blue">Equity</span></td>
+                        <td class="amt">₹6,58,000</td>
+                    </tr>
+                    <tr>
+                        <td>Liquid Fund</td>
+                        <td><span class="tag tag-green">Liquid</span></td>
+                        <td class="amt">₹2,32,000</td>
+                    </tr>
+                    <tr>
+                        <td>PPF</td>
+                        <td><span class="tag tag-amber">Long-term Debt</span></td>
+                        <td class="amt">₹1,50,000</td>
+                    </tr>
+                    <tr>
+                        <td>NPS</td>
+                        <td><span class="tag tag-purple">Retirement</span></td>
+                        <td class="amt">₹1,16,000</td>
+                    </tr>
+                    <tr>
+                        <td>Axis RD</td>
+                        <td><span class="tag tag-teal">Debt / RD</span></td>
+                        <td class="amt">₹80,901</td>
+                    </tr>
+                    <tr>
+                        <td>Stocks (Direct)</td>
+                        <td><span class="tag tag-blue">Equity</span></td>
+                        <td class="amt">₹16,667</td>
+                    </tr>
+                    <tr>
+                        <td>SSY (Gowri)</td>
+                        <td><span class="tag tag-pink">Education</span></td>
+                        <td class="amt">₹5,000</td>
+                    </tr>
+                    <tr class="tr-total">
+                        <td colspan="2"><strong>Total Net Worth</strong></td>
+                        <td class="amt" style="color:var(--primary)">₹12,58,568</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Monthly SIPs -->
+        <div class="card">
+            <div class="card-title">Monthly Investments</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Investment</th>
+                        <th>Type</th>
+                        <th style="text-align:right">Monthly</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Equity SIPs</td>
+                        <td><span class="tag tag-blue">Equity</span></td>
+                        <td class="amt">₹23,000</td>
+                    </tr>
+                    <tr>
+                        <td>PPF</td>
+                        <td><span class="tag tag-amber">Long-term</span></td>
+                        <td class="amt">₹15,000</td>
+                    </tr>
+                    <tr>
+                        <td>Axis RD</td>
+                        <td><span class="tag tag-teal">Debt</span></td>
+                        <td class="amt">₹10,000</td>
+                    </tr>
+                    <tr>
+                        <td>Liquid Fund SIP</td>
+                        <td><span class="tag tag-green">Liquid</span></td>
+                        <td class="amt">₹10,000</td>
+                    </tr>
+                    <tr>
+                        <td>Gold Chit</td>
+                        <td><span class="tag tag-amber">Gold</span></td>
+                        <td class="amt">₹7,500</td>
+                    </tr>
+                    <tr>
+                        <td>HDFC RD</td>
+                        <td><span class="tag tag-teal">Debt</span></td>
+                        <td class="amt">₹5,000</td>
+                    </tr>
+                    <tr class="tr-total">
+                        <td colspan="2"><strong>Total Invested</strong></td>
+                        <td class="amt" style="color:var(--primary)">₹70,500</td>
+                    </tr>
+                    <tr class="tr-warn">
+                        <td colspan="2" style="color:#92400e"><strong>⚡ Unused Capacity</strong></td>
+                        <td class="amt" style="color:#92400e"><strong>₹29,500</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ INSURANCE -->
+<div class="section-wrap">
+    <div class="section-title">🛡 Insurance Coverage</div>
+    <div class="grid-3">
+
+        <div class="ins-card">
+            <div class="ins-icon" style="background:#fee2e2">❤️</div>
+            <div>
+                <div class="ins-name">Health Insurance</div>
+                <div class="ins-value">₹10 Lakh</div>
+                <div class="ins-note" style="color:var(--accent)">⚠ Consider upgrading to ₹25-50L</div>
+            </div>
+        </div>
+
+        <div class="ins-card">
+            <div class="ins-icon" style="background:#dbeafe">🛡</div>
+            <div>
+                <div class="ins-name">Term Insurance</div>
+                <div class="ins-value">₹1 Crore</div>
+                <div class="ins-note" style="color:var(--success)">✓ Good baseline cover</div>
+            </div>
+        </div>
+
+        <div class="ins-card">
+            <div class="ins-icon" style="background:#fef3c7">🏛</div>
+            <div>
+                <div class="ins-name">LIC Jeevan Labh</div>
+                <div class="ins-value">₹5 Lakh</div>
+                <div class="ins-note" style="color:var(--muted)">Endowment · ~5-6% returns</div>
+            </div>
+        </div>
+
+        <div class="ins-card">
+            <div class="ins-icon" style="background:#d1fae5">📮</div>
+            <div>
+                <div class="ins-name">Postal Life Insurance</div>
+                <div class="ins-value">₹20 Lakh</div>
+                <div class="ins-note" style="color:var(--success)">✓ Govt backed</div>
+            </div>
+        </div>
+
+        <div class="ins-card" style="border:2px dashed #f59e0b; background:#fffbeb;">
+            <div class="ins-icon" style="background:#fef3c7">⚠️</div>
+            <div>
+                <div class="ins-name" style="color:#92400e">Total Life Cover</div>
+                <div class="ins-value" style="color:#92400e">₹1.25 Cr</div>
+                <div class="ins-note" style="color:#92400e">Suggest ₹2-3Cr at age 32</div>
+            </div>
+        </div>
+
+        <div class="ins-card" style="border:2px dashed #dc2626; background:#fff5f5;">
+            <div class="ins-icon" style="background:#fee2e2">🚨</div>
+            <div>
+                <div class="ins-name" style="color:#dc2626">Wife's Coverage</div>
+                <div class="ins-value" style="color:#dc2626">Unknown</div>
+                <div class="ins-note" style="color:#dc2626">Verify wife's term + health</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ GOALS -->
+<div class="section-wrap">
+    <div class="section-title">🎯 Financial Goals Progress</div>
+    <div class="grid-2">
+
+        <div class="card">
+            <!-- Emergency Fund -->
+            <div class="goal-item">
+                <div class="goal-header">
+                    <div class="goal-name">🛡 Emergency Fund</div>
+                    <div class="goal-pct">38.7% · ₹2.32L of ₹6L</div>
+                </div>
+                <div class="prog-bg">
+                    <div class="prog-fill" style="width:38.7%; background:linear-gradient(90deg,#f59e0b,#d97706)"></div>
+                </div>
+                <div class="goal-footer">
+                    <span>₹3.68L gap remaining</span>
+                    <span>~4 months to close</span>
+                </div>
+            </div>
+
+            <!-- Gowri's Education -->
+            <div class="goal-item">
+                <div class="goal-header">
+                    <div class="goal-name">👧 Gowri's Education Corpus</div>
+                    <div class="goal-pct">0.01% · SSY started</div>
+                </div>
+                <div class="prog-bg">
+                    <div class="prog-fill" style="width:0.01%; background:linear-gradient(90deg,#06b6d4,#0891b2)"></div>
+                </div>
+                <div class="goal-footer">
+                    <span class="placeholder">Add Gowri's age to calculate timeline & target</span>
+                </div>
+            </div>
+
+            <!-- House Purchase -->
+            <div class="goal-item">
+                <div class="goal-header">
+                    <div class="goal-name">🏡 House Purchase</div>
+                    <div class="goal-pct">Target TBD</div>
+                </div>
+                <div class="prog-bg">
+                    <div class="prog-fill" style="width:0%; background:linear-gradient(90deg,#84cc16,#65a30d)"></div>
+                </div>
+                <div class="goal-footer">
+                    <span class="placeholder">Add target budget and year to start tracking</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <!-- Retirement -->
+            <div class="goal-item">
+                <div class="goal-header">
+                    <div class="goal-name">🧓 Retirement Corpus</div>
+                    <div class="goal-pct">NPS started · ₹1.16L</div>
+                </div>
+                <div class="prog-bg">
+                    <div class="prog-fill" style="width:0.2%; background:linear-gradient(90deg,#8b5cf6,#7c3aed)"></div>
+                </div>
+                <div class="goal-footer">
+                    <span class="placeholder">Add target retirement age for projection</span>
+                </div>
+            </div>
+
+            <!-- ₹10Cr Wealth -->
+            <div class="goal-item">
+                <div class="goal-header">
+                    <div class="goal-name">💎 ₹10Cr Wealth Creation</div>
+                    <div class="goal-pct">1.26% · ₹12.59L of ₹10Cr</div>
+                </div>
+                <div class="prog-bg">
+                    <div class="prog-fill" style="width:1.26%; background:linear-gradient(90deg,#10b981,#059669)"></div>
+                </div>
+                <div class="goal-footer">
+                    <span>~19-22 yrs at 12% returns</span>
+                    <span>See projection chart below</span>
+                </div>
+            </div>
+
+            <!-- Financial Independence -->
+            <div class="goal-item">
+                <div class="goal-header">
+                    <div class="goal-name">🦅 Financial Independence</div>
+                    <div class="goal-pct">Foundation stage</div>
+                </div>
+                <div class="prog-bg">
+                    <div class="prog-fill" style="width:5%; background:linear-gradient(90deg,#f97316,#ea580c)"></div>
+                </div>
+                <div class="goal-footer">
+                    <span class="placeholder">Define FI number = 25× annual expenses</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ WEALTH PROJECTION -->
+<div class="section-wrap">
+    <div class="section-title">📈 Wealth Projection to ₹10Cr</div>
+    <div class="card">
+        <div style="margin-bottom:12px;font-size:0.82rem;color:var(--muted)">
+            Starting corpus: <strong>₹12.59L</strong> &nbsp;·&nbsp; Monthly investment: <strong>₹70,500</strong> &nbsp;·&nbsp; 3 return scenarios over 25 years
+        </div>
+        <div class="chart-h320">
+            <canvas id="projectionChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ ACTION ITEMS -->
+<div class="section-wrap">
+    <div class="section-title">⚡ Priority Action Items</div>
+
+    <div class="alert alert-danger">
+        <span class="alert-icon">🚨</span>
+        <div><strong>Deploy the ₹29,500 unused investment capacity.</strong> You have ₹1L/month capacity but invest only ₹70,500. Redirect this gap immediately — channel it to Emergency Fund first, then Gowri's SSY or a new goal-specific SIP.</div>
+    </div>
+
+    <div class="alert alert-warn">
+        <span class="alert-icon">⚠️</span>
+        <div><strong>Complete Emergency Fund urgently.</strong> At ₹2.32L you're only 38.7% of the ₹6L target. At ₹29,500/month extra, you can close this gap in ~4 months. Do this before adding any new investments.</div>
+    </div>
+
+    <div class="alert alert-warn">
+        <span class="alert-icon">⚠️</span>
+        <div><strong>Health insurance is insufficient.</strong> ₹10L cover in 2026 for a family is below recommended ₹25-50L. A super top-up plan (e.g., ₹40L cover) costs only ₹4,000-7,000/year in premium — worth it immediately.</div>
+    </div>
+
+    <div class="alert alert-info">
+        <span class="alert-icon">ℹ️</span>
+        <div><strong>LIC Jeevan Labh review needed.</strong> Endowment plans typically return only 5-6% — lower than inflation in the long run. Consider whether surrendering and redirecting premiums to equity SIPs makes sense. Check surrender value with LIC first.</div>
+    </div>
+
+    <div class="alert alert-info">
+        <span class="alert-icon">ℹ️</span>
+        <div><strong>Gowri's education planning needs timeline.</strong> SSY is started (good!) but ₹5,000 corpus needs significant acceleration. Share Gowri's age so we can calculate the required monthly investment to meet the education goal.</div>
+    </div>
+
+    <div class="alert alert-success">
+        <span class="alert-icon">✅</span>
+        <div><strong>Strong foundation — you're doing well.</strong> Term cover ₹1Cr, equity SIPs ₹23K, PPF ₹15K, SSY & NPS started — all the right instruments are in place. The next step is plugging gaps and optimising allocation.</div>
+    </div>
+</div>
+
+</div><!-- /container -->
+
+<div class="footer">
+    Sachin's Personal Finance Dashboard &nbsp;·&nbsp; Data as of July 2026 &nbsp;·&nbsp; 🔒 Keep this file private
+</div>
+
+<!-- ════════════════════════════════════════════════ SCRIPTS -->
+<script>
+    // ── HELPERS ─────────────────────────────────────────────────────────────
+    const fmt = v => v >= 1e7
+        ? `₹${(v/1e7).toFixed(2)} Cr`
+        : v >= 1e5
+            ? `₹${(v/1e5).toFixed(2)} L`
+            : `₹${v.toLocaleString('en-IN')}`;
+
+    // ── ASSET ALLOCATION DOUGHNUT ────────────────────────────────────────────
+    new Chart(document.getElementById('assetChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Equity MF', 'Liquid Fund', 'PPF', 'NPS', 'Axis RD', 'Stocks', 'SSY'],
+            datasets: [{
+                data: [658000, 232000, 150000, 116000, 80901, 16667, 5000],
+                backgroundColor: ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#06b6d4','#ec4899','#84cc16'],
+                borderWidth: 3,
+                borderColor: '#fff',
+                hoverOffset: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '62%',
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: { boxWidth: 12, font: { size: 11 }, padding: 10 }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => {
+                            const v = ctx.parsed;
+                            const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+                            return ` ${fmt(v)}  (${(v/total*100).toFixed(1)}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // ── MONTHLY CASH FLOW BAR ────────────────────────────────────────────────
+    new Chart(document.getElementById('cashFlowChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Total Income', 'Invested', 'Living Expenses\n(estimated)'],
+            datasets: [{
+                data: [290000, 70500, 219500],
+                backgroundColor: ['#3b82f6','#10b981','#f59e0b'],
+                borderRadius: 8,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: { label: ctx => ` ${fmt(ctx.parsed.y)} / month` }
+                }
+            },
+            scales: {
+                y: {
+                    grid: { color: '#f1f5f9' },
+                    ticks: { callback: v => `₹${(v/1000).toFixed(0)}K` }
+                },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // ── WEALTH PROJECTION LINE ───────────────────────────────────────────────
+    function project(start, monthly, annualRate, years) {
+        const r = annualRate / 12;
+        const pts = [start];
+        let c = start;
+        for (let m = 1; m <= years * 12; m++) {
+            c = c * (1 + r) + monthly;
+            if (m % 12 === 0) pts.push(Math.round(c));
+        }
+        return pts;
+    }
+
+    const START = 1258568, MONTHLY = 70500, YEARS = 25;
+    const labels = ['Now', ...Array.from({length: YEARS}, (_, i) => `Yr ${i + 1}`)];
+    const p10 = project(START, MONTHLY, 0.10, YEARS);
+    const p12 = project(START, MONTHLY, 0.12, YEARS);
+    const p15 = project(START, MONTHLY, 0.15, YEARS);
+    // ₹10Cr target reference line
+    const target = new Array(YEARS + 1).fill(10000000);
+
+    new Chart(document.getElementById('projectionChart'), {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: '₹10Cr Target',
+                    data: target,
+                    borderColor: '#dc2626',
+                    borderWidth: 1.5,
+                    borderDash: [6, 4],
+                    pointRadius: 0,
+                    backgroundColor: 'transparent',
+                    order: 0
+                },
+                {
+                    label: 'Conservative (10%)',
+                    data: p10,
+                    borderColor: '#94a3b8',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    pointRadius: 2,
+                    order: 1
+                },
+                {
+                    label: 'Moderate (12%)',
+                    data: p12,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59,130,246,0.07)',
+                    fill: true,
+                    borderWidth: 3,
+                    tension: 0.4,
+                    pointRadius: 2,
+                    order: 2
+                },
+                {
+                    label: 'Aggressive (15%)',
+                    data: p15,
+                    borderColor: '#10b981',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    pointRadius: 2,
+                    order: 3
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top', labels: { boxWidth: 14, font: { size: 12 } } },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)}`
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    grid: { color: '#f1f5f9' },
+                    ticks: {
+                        callback: v => v >= 1e7
+                            ? `₹${(v/1e7).toFixed(0)}Cr`
+                            : `₹${(v/1e5).toFixed(0)}L`
+                    }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { maxTicksLimit: 10 }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

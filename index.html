@@ -1,716 +1,632 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sachin – Financial Command Center</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <style>
-        :root {
-            --bg:       #060b18;
-            --card:     #0c1428;
-            --card2:    #101d38;
-            --border:   rgba(148,163,184,0.08);
-            --glow:     rgba(99,102,241,0.25);
-            --indigo:   #6366f1;
-            --cyan:     #22d3ee;
-            --emerald:  #10b981;
-            --amber:    #f59e0b;
-            --rose:     #f43f5e;
-            --violet:   #a78bfa;
-            --gold:     #fbbf24;
-            --pink:     #ec4899;
-            --lime:     #84cc16;
-            --text:     #f1f5f9;
-            --muted:    #64748b;
-            --muted2:   #94a3b8;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sachin – Financial Command Center</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:#060b18; --card:#0c1428; --card2:#101d38; --border:rgba(148,163,184,.08); --glow:rgba(99,102,241,.25);
+  --indigo:#6366f1; --cyan:#22d3ee; --emerald:#10b981; --amber:#f59e0b; --rose:#f43f5e;
+  --violet:#a78bfa; --gold:#fbbf24; --pink:#ec4899; --lime:#84cc16; --sky:#38bdf8;
+  --text:#f1f5f9; --muted:#64748b; --muted2:#94a3b8;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
-        * { margin:0; padding:0; box-sizing:border-box; }
+/* HEADER */
+@keyframes gs{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes rb{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.header{background:linear-gradient(-45deg,#0f0c29,#1a0a3c,#0d1b4e,#1c0a3c,#0a1628);background-size:400% 400%;animation:gs 10s ease infinite;padding:20px 24px 18px;position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at center,rgba(99,102,241,.12) 0%,transparent 60%);animation:rb 20s linear infinite;}
+.hi{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:flex-start;max-width:1200px;margin:0 auto;}
+.h1{font-size:1.4rem;font-weight:800;background:linear-gradient(90deg,#f1f5f9,#a78bfa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hsub{font-size:.76rem;color:rgba(148,163,184,.65);margin-top:3px;}
+.hfam{display:flex;gap:12px;margin-top:10px;}
+.hfc{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:4px 10px;font-size:.7rem;color:var(--muted2);}
+.hfc strong{color:var(--text);}
+.live{display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);color:#10b981;padding:4px 12px;border-radius:100px;font-size:.7rem;font-weight:700;}
+.ldot{width:7px;height:7px;background:#10b981;border-radius:50%;animation:pulse 2s infinite;}
+.hr{text-align:right;}.hr .hn{font-size:.9rem;font-weight:700;}.hr .hro{font-size:.7rem;color:var(--muted2);margin-top:2px;}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-        }
+/* TABS */
+.tnav{background:rgba(6,11,24,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;position:sticky;top:0;z-index:100;}
+.ti{display:flex;max-width:1200px;margin:0 auto;width:100%;}
+.tb{flex:1;padding:13px 8px;background:none;border:none;color:var(--muted2);font-size:.76rem;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .2s;border-bottom:2px solid transparent;}
+.tb:hover{color:var(--text);background:rgba(99,102,241,.05);}
+.tb.active{color:var(--indigo);border-bottom-color:var(--indigo);background:rgba(99,102,241,.07);}
+.ticon{font-size:1rem;}
+@media(max-width:480px){.tb .tlbl{display:none;}.ticon{font-size:1.25rem;}}
 
-        /* ── HEADER ── */
-        @keyframes gradShift {
-            0%   { background-position:0% 50%; }
-            50%  { background-position:100% 50%; }
-            100% { background-position:0% 50%; }
-        }
-        @keyframes rotateBg {
-            from { transform: rotate(0deg); }
-            to   { transform: rotate(360deg); }
-        }
-        @keyframes pulse {
-            0%,100% { opacity:1; transform:scale(1); }
-            50%      { opacity:.5; transform:scale(1.4); }
-        }
-        @keyframes fadeUp {
-            from { opacity:0; transform:translateY(16px); }
-            to   { opacity:1; transform:translateY(0); }
-        }
+/* LAYOUT */
+.wrap{max-width:1200px;margin:0 auto;padding:22px 16px 60px;}
+.tp{display:none;animation:fadeUp .3s ease;}
+.tp.active{display:block;}
+.sw{margin-bottom:26px;}
+.sec{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted2);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.sec::after{content:'';flex:1;height:1px;background:var(--border);}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+.g6{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+@media(max-width:1000px){.g4{grid-template-columns:repeat(2,1fr);}.g5{grid-template-columns:repeat(3,1fr);}.g6{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:700px){.g2,.g3,.g4,.g5,.g6{grid-template-columns:1fr;}}
 
-        .header {
-            background: linear-gradient(-45deg,#0f0c29,#1a0a3c,#0d1b4e,#1c0a3c,#0a1628);
-            background-size: 400% 400%;
-            animation: gradShift 10s ease infinite;
-            padding: 22px 28px 20px;
-            position: relative;
-            overflow: hidden;
-        }
-        .header::before {
-            content:'';
-            position:absolute; top:-50%; left:-50%;
-            width:200%; height:200%;
-            background: radial-gradient(ellipse at center, rgba(99,102,241,.12) 0%, transparent 60%);
-            animation: rotateBg 20s linear infinite;
-        }
-        .header-inner {
-            position: relative; z-index:1;
-            display: flex; justify-content: space-between; align-items: flex-start;
-            max-width: 1200px; margin: 0 auto;
-        }
-        .header h1 {
-            font-size: 1.45rem; font-weight: 800; letter-spacing: -.5px;
-            background: linear-gradient(90deg,#f1f5f9,#a78bfa,#22d3ee);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .header-sub { font-size:.78rem; color:rgba(148,163,184,.65); margin-top:4px; }
-        .live-badge {
-            display:inline-flex; align-items:center; gap:6px;
-            background:rgba(16,185,129,.12); border:1px solid rgba(16,185,129,.3);
-            color:#10b981; padding:4px 12px; border-radius:100px;
-            font-size:.7rem; font-weight:700; margin-top:10px;
-        }
-        .live-dot { width:7px; height:7px; background:#10b981; border-radius:50%; animation:pulse 2s infinite; }
-        .header-right { text-align:right; }
-        .header-right .hname { font-size:.95rem; font-weight:700; }
-        .header-right .hrole { font-size:.72rem; color:var(--muted2); margin-top:2px; }
+/* CARD */
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;transition:transform .2s,border-color .2s,box-shadow .2s;}
+.card:hover{transform:translateY(-2px);border-color:var(--glow);box-shadow:0 8px 30px rgba(0,0,0,.3);}
+.clbl{font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px;}
 
-        /* ── TAB NAV ── */
-        .tab-nav {
-            background:rgba(6,11,24,.97);
-            backdrop-filter:blur(20px);
-            border-bottom:1px solid var(--border);
-            display:flex;
-            position:sticky; top:0; z-index:100;
-        }
-        .tab-inner { display:flex; max-width:1200px; margin:0 auto; width:100%; }
-        .tab-btn {
-            flex:1; padding:14px 10px;
-            background:none; border:none;
-            color:var(--muted2); font-size:.78rem; font-weight:600;
-            cursor:pointer;
-            display:flex; flex-direction:column; align-items:center; gap:4px;
-            transition:all .2s;
-            border-bottom:2px solid transparent;
-        }
-        .tab-btn:hover { color:var(--text); background:rgba(99,102,241,.05); }
-        .tab-btn.active { color:var(--indigo); border-bottom-color:var(--indigo); background:rgba(99,102,241,.07); }
-        .tab-icon { font-size:1.1rem; }
-        @media(max-width:480px){ .tab-btn span.tab-label{display:none;} .tab-icon{font-size:1.3rem;} }
+/* KPI */
+.kpi{position:relative;overflow:hidden;}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;}
+.ci::before{background:linear-gradient(90deg,#6366f1,#a78bfa);}
+.cc::before{background:linear-gradient(90deg,#22d3ee,#38bdf8);}
+.ce::before{background:linear-gradient(90deg,#10b981,#34d399);}
+.ca::before{background:linear-gradient(90deg,#f59e0b,#fbbf24);}
+.cr2::before{background:linear-gradient(90deg,#f43f5e,#fb7185);}
+.kico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;margin-bottom:10px;}
+.ci .kico{background:rgba(99,102,241,.15);} .cc .kico{background:rgba(34,211,238,.15);} .ce .kico{background:rgba(16,185,129,.15);} .ca .kico{background:rgba(245,158,11,.15);} .cr2 .kico{background:rgba(244,63,94,.15);}
+.kval{font-size:1.65rem;font-weight:800;letter-spacing:-1px;line-height:1;}
+.ci .kval{color:#a78bfa;} .cc .kval{color:#22d3ee;} .ce .kval{color:#10b981;} .ca .kval{color:#f59e0b;} .cr2 .kval{color:#fb7185;}
+.knm{font-size:.75rem;color:var(--muted2);margin-top:5px;}
+.ksub{font-size:.68rem;font-weight:600;margin-top:3px;}
+.ci .ksub{color:rgba(167,139,250,.75);} .cc .ksub{color:rgba(34,211,238,.75);} .ce .ksub{color:rgba(245,158,11,.85);} .ca .ksub{color:rgba(244,63,94,.85);} .cr2 .ksub{color:rgba(251,113,133,.75);}
 
-        /* ── CONTAINER ── */
-        .container { max-width:1200px; margin:0 auto; padding:24px 16px 60px; }
-        .tab-pane { display:none; animation:fadeUp .3s ease; }
-        .tab-pane.active { display:block; }
+/* TABLE */
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;font-size:.61rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:7px 10px;border-bottom:1px solid var(--border);}
+td{padding:9px 10px;font-size:.835rem;border-bottom:1px solid var(--border);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(99,102,241,.03);}
+.trt td{background:rgba(99,102,241,.07);font-weight:700;}
+.trw td{background:rgba(245,158,11,.06);}
+.trg td{background:rgba(16,185,129,.05);}
+.amt{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;}
+.amtr{color:#f43f5e;}
 
-        /* ── GRIDS ── */
-        .g4 { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
-        .g2 { display:grid; grid-template-columns:1fr 1fr;        gap:16px; }
-        .g3 { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
-        .g5 { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; }
-        @media(max-width:900px){ .g4{grid-template-columns:repeat(2,1fr);} .g3{grid-template-columns:repeat(2,1fr);} .g5{grid-template-columns:repeat(3,1fr);} }
-        @media(max-width:580px){ .g4,.g2,.g3,.g5{grid-template-columns:1fr;} }
+/* TAGS */
+.tag{display:inline-block;padding:2px 8px;border-radius:100px;font-size:.63rem;font-weight:700;}
+.ti2{background:rgba(99,102,241,.15);color:#a78bfa;} .tc2{background:rgba(34,211,238,.12);color:#22d3ee;}
+.te2{background:rgba(16,185,129,.12);color:#10b981;} .ta2{background:rgba(245,158,11,.12);color:#f59e0b;}
+.tv2{background:rgba(167,139,250,.12);color:#c4b5fd;} .tp2{background:rgba(236,72,153,.12);color:#f472b6;}
+.tr3{background:rgba(244,63,94,.12);color:#fb7185;} .tg2{background:rgba(132,204,22,.12);color:#a3e635;}
+.ts2{background:rgba(148,163,184,.12);color:#94a3b8;}
 
-        /* ── CARD ── */
-        .card {
-            background:var(--card); border:1px solid var(--border);
-            border-radius:16px; padding:20px;
-            transition:transform .2s, border-color .2s, box-shadow .2s;
-        }
-        .card:hover { transform:translateY(-2px); border-color:var(--glow); box-shadow:0 8px 32px rgba(0,0,0,.3),0 0 0 1px rgba(99,102,241,.1); }
-        .card-label { font-size:.67rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:12px; }
+/* PROGRESS */
+.gi{margin-bottom:0;}
+.gh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+.gn{font-size:.83rem;font-weight:700;}
+.gp{font-size:.7rem;color:var(--muted2);}
+.pbg{background:rgba(255,255,255,.05);border-radius:100px;height:8px;overflow:hidden;}
+.pf{height:100%;border-radius:100px;width:0;transition:width 1.3s cubic-bezier(.22,.61,.36,1);}
+.gf{display:flex;justify-content:space-between;margin-top:4px;font-size:.67rem;color:var(--muted);}
 
-        /* ── KPI CARDS ── */
-        .kpi { position:relative; overflow:hidden; }
-        .kpi::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; border-radius:16px 16px 0 0; }
-        .kpi.c-indigo::before  { background:linear-gradient(90deg,#6366f1,#a78bfa); }
-        .kpi.c-cyan::before    { background:linear-gradient(90deg,#22d3ee,#38bdf8); }
-        .kpi.c-emerald::before { background:linear-gradient(90deg,#10b981,#34d399); }
-        .kpi.c-amber::before   { background:linear-gradient(90deg,#f59e0b,#fbbf24); }
+/* GOAL CARDS */
+.gcard{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s;}
+.gcard:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.35);}
+.gcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;}
+.gcn{font-size:.9rem;font-weight:800;margin-bottom:4px;}
+.gcd{font-size:.7rem;color:var(--muted2);margin-bottom:12px;}
+.gcrow{display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px;}
+.gcs{font-size:.65rem;color:var(--muted);}.gcv{font-size:.95rem;font-weight:700;}
+.gcsip{margin-top:12px;background:rgba(255,255,255,.04);border-radius:8px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;}
+.siplab{font-size:.65rem;color:var(--muted2);text-transform:uppercase;letter-spacing:.04em;}
+.sipval{font-size:.9rem;font-weight:800;}
+.sipgap{font-size:.65rem;margin-top:2px;}
 
-        .kpi-icon { width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; margin-bottom:12px; }
-        .kpi.c-indigo  .kpi-icon { background:rgba(99,102,241,.15); }
-        .kpi.c-cyan    .kpi-icon { background:rgba(34,211,238,.15); }
-        .kpi.c-emerald .kpi-icon { background:rgba(16,185,129,.15); }
-        .kpi.c-amber   .kpi-icon { background:rgba(245,158,11,.15); }
+/* INSURANCE */
+.ins{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;transition:border-color .2s;}
+.ins:hover{border-color:rgba(99,102,241,.2);}
+.inico{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0;}
+.inn{font-size:.7rem;color:var(--muted2);}
+.inv{font-size:1rem;font-weight:800;}
+.ins2{font-size:.67rem;margin-top:2px;}
 
-        .kpi-val  { font-size:1.75rem; font-weight:800; letter-spacing:-1px; line-height:1; }
-        .kpi.c-indigo  .kpi-val { color:#a78bfa; }
-        .kpi.c-cyan    .kpi-val { color:#22d3ee; }
-        .kpi.c-emerald .kpi-val { color:#10b981; }
-        .kpi.c-amber   .kpi-val { color:#f59e0b; }
+/* ALERTS */
+.al{padding:11px 14px;border-radius:8px;margin-bottom:10px;font-size:.82rem;display:flex;gap:10px;line-height:1.5;}
+.ald{background:rgba(244,63,94,.07);border-left:3px solid #f43f5e;}
+.alw{background:rgba(245,158,11,.07);border-left:3px solid #f59e0b;}
+.ali{background:rgba(34,211,238,.06);border-left:3px solid #22d3ee;}
+.als{background:rgba(16,185,129,.07);border-left:3px solid #10b981;}
 
-        .kpi-name { font-size:.77rem; color:var(--muted2); margin-top:6px; }
-        .kpi-sub  { font-size:.7rem; font-weight:600; margin-top:3px; }
-        .kpi.c-indigo  .kpi-sub { color:rgba(167,139,250,.75); }
-        .kpi.c-cyan    .kpi-sub { color:rgba(34,211,238,.75); }
-        .kpi.c-emerald .kpi-sub { color:rgba(245,158,11,.85); }
-        .kpi.c-amber   .kpi-sub { color:rgba(244,63,94,.85); }
+/* MILESTONE */
+.mc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;transition:transform .2s,border-color .2s;}
+.mc:hover{transform:translateY(-3px);border-color:var(--glow);}
+.mcv{font-size:1rem;font-weight:800;margin-bottom:3px;}
+.mcy{font-size:.76rem;color:var(--muted2);}
+.mca{font-size:.66rem;color:var(--muted);margin-top:2px;}
 
-        /* ── SECTION LABEL ── */
-        .sec { font-size:.67rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--muted2); margin-bottom:14px; display:flex; align-items:center; gap:10px; }
-        .sec::after { content:''; flex:1; height:1px; background:var(--border); }
-        .sw { margin-bottom:28px; }
+/* EMI TIMELINE */
+.etl{display:flex;flex-direction:column;gap:10px;}
+.eti{display:flex;align-items:center;gap:14px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+.etdot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.etn{font-size:.83rem;font-weight:700;}
+.etd{font-size:.7rem;color:var(--muted2);margin-top:2px;}
+.etb{margin-left:auto;text-align:right;}
+.etfree{font-size:.75rem;font-weight:700;color:#10b981;}
+.etamt{font-size:.7rem;color:var(--muted);}
 
-        /* ── CHARTS ── */
-        .ch260 { position:relative; height:260px; }
-        .ch320 { position:relative; height:320px; }
-        .ch200 { position:relative; height:200px; }
-
-        /* ── TABLE ── */
-        table { width:100%; border-collapse:collapse; }
-        th { text-align:left; font-size:.62rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); padding:8px 10px; border-bottom:1px solid var(--border); }
-        td { padding:10px 10px; font-size:.845rem; border-bottom:1px solid var(--border); }
-        tr:last-child td { border-bottom:none; }
-        tr:hover td { background:rgba(99,102,241,.03); }
-        .tr-tot td { background:rgba(99,102,241,.07); font-weight:700; }
-        .tr-warn td { background:rgba(245,158,11,.06); }
-        .amt { text-align:right; font-weight:600; font-variant-numeric:tabular-nums; }
-
-        /* ── TAGS ── */
-        .tag { display:inline-block; padding:2px 8px; border-radius:100px; font-size:.64rem; font-weight:700; }
-        .ti { background:rgba(99,102,241,.15);  color:#a78bfa; }
-        .tc { background:rgba(34,211,238,.12);  color:#22d3ee; }
-        .te { background:rgba(16,185,129,.12);  color:#10b981; }
-        .ta { background:rgba(245,158,11,.12);  color:#f59e0b; }
-        .tv { background:rgba(167,139,250,.12); color:#c4b5fd; }
-        .tp { background:rgba(236,72,153,.12);  color:#f472b6; }
-
-        /* ── GOAL PROGRESS ── */
-        .gi   { margin-bottom:22px; }
-        .gh   { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
-        .gn   { font-size:.875rem; font-weight:700; }
-        .gp   { font-size:.73rem; color:var(--muted2); }
-        .pbg  { background:rgba(255,255,255,.05); border-radius:100px; height:10px; overflow:hidden; }
-        .pf   { height:100%; border-radius:100px; width:0; transition:width 1.3s cubic-bezier(.22,.61,.36,1); }
-        .gf   { display:flex; justify-content:space-between; margin-top:5px; font-size:.7rem; color:var(--muted); }
-
-        /* ── INSURANCE ── */
-        .ins {
-            background:var(--card2); border:1px solid var(--border);
-            border-radius:12px; padding:14px 16px;
-            display:flex; align-items:center; gap:12px;
-            transition:border-color .2s;
-        }
-        .ins:hover { border-color:rgba(99,102,241,.2); }
-        .ins-ico { width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0; }
-        .ins-n { font-size:.72rem; color:var(--muted2); }
-        .ins-v { font-size:1.05rem; font-weight:800; }
-        .ins-s { font-size:.68rem; margin-top:2px; }
-
-        /* ── ALERTS ── */
-        .al { padding:12px 14px; border-radius:10px; margin-bottom:10px; font-size:.835rem; display:flex; gap:10px; line-height:1.5; }
-        .al-danger  { background:rgba(244,63,94,.07);  border-left:3px solid #f43f5e; }
-        .al-warn    { background:rgba(245,158,11,.07); border-left:3px solid #f59e0b; }
-        .al-info    { background:rgba(34,211,238,.06); border-left:3px solid #22d3ee; }
-        .al-success { background:rgba(16,185,129,.07); border-left:3px solid #10b981; }
-
-        /* ── MILESTONE ── */
-        .mc {
-            background:var(--card); border:1px solid var(--border);
-            border-radius:12px; padding:16px; text-align:center;
-            transition:transform .2s, border-color .2s;
-        }
-        .mc:hover { transform:translateY(-3px); border-color:var(--glow); }
-        .mc-val   { font-size:1.05rem; font-weight:800; margin-bottom:4px; }
-        .mc-yrs   { font-size:.78rem; color:var(--muted2); }
-        .mc-age   { font-size:.68rem; color:var(--muted); margin-top:3px; }
-
-        /* ── CALCULATOR ── */
-        .calc-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:24px; }
-        .calc-title { font-size:1rem; font-weight:700; margin-bottom:20px; }
-        .calc-title span { background:linear-gradient(90deg,var(--indigo),var(--cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-        .il { margin-bottom:16px; }
-        .il label { font-size:.73rem; font-weight:600; color:var(--muted2); margin-bottom:6px; display:block; }
-        .ci {
-            width:100%; background:rgba(255,255,255,.04); border:1px solid var(--border);
-            border-radius:8px; color:var(--text); padding:10px 14px;
-            font-size:.9rem; font-weight:600; outline:none; transition:border-color .2s;
-        }
-        .ci:focus { border-color:var(--indigo); }
-        input[type=range] { -webkit-appearance:none; width:100%; height:4px; background:rgba(255,255,255,.1); border-radius:100px; outline:none; cursor:pointer; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:var(--indigo); cursor:pointer; box-shadow:0 0 8px rgba(99,102,241,.5); }
-        .cr { background:rgba(99,102,241,.08); border:1px solid rgba(99,102,241,.2); border-radius:12px; padding:20px; margin-top:20px; }
-        .rg { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; text-align:center; }
-        .rl { font-size:.67rem; color:var(--muted2); text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }
-        .rv { font-size:1.2rem; font-weight:800; }
-        .rv.inv { color:#22d3ee; }
-        .rv.gain { color:#10b981; }
-        .rv.tot  { color:#a78bfa; }
-        .preset-btn {
-            padding:6px 12px; background:rgba(99,102,241,.1); border:1px solid rgba(99,102,241,.2);
-            border-radius:20px; color:#a78bfa; font-size:.7rem; font-weight:600;
-            cursor:pointer; transition:all .2s;
-        }
-        .preset-btn:hover { background:rgba(99,102,241,.2); border-color:rgba(99,102,241,.4); }
-
-        .footer { text-align:center; padding:20px; color:var(--muted); font-size:.72rem; border-top:1px solid var(--border); }
-    </style>
+/* CALC */
+.cc2{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;}
+.cct{font-size:.95rem;font-weight:700;margin-bottom:18px;}
+.cct span{background:linear-gradient(90deg,var(--indigo),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.il{margin-bottom:14px;}.il label{font-size:.72rem;font-weight:600;color:var(--muted2);margin-bottom:5px;display:block;}
+.ci2{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:9px 13px;font-size:.88rem;font-weight:600;outline:none;transition:border-color .2s;}
+.ci2:focus{border-color:var(--indigo);}
+input[type=range]{-webkit-appearance:none;width:100%;height:4px;background:rgba(255,255,255,.1);border-radius:100px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--indigo);cursor:pointer;box-shadow:0 0 8px rgba(99,102,241,.5);}
+.cr3{background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2);border-radius:10px;padding:18px;margin-top:16px;}
+.rg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center;}
+.rl{font-size:.63rem;color:var(--muted2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
+.rv{font-size:1.1rem;font-weight:800;}
+.rv.inv{color:#22d3ee;}.rv.gain{color:#10b981;}.rv.tot{color:#a78bfa;}
+.pb{padding:6px 12px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);border-radius:18px;color:#a78bfa;font-size:.68rem;font-weight:600;cursor:pointer;transition:all .2s;}
+.pb:hover{background:rgba(99,102,241,.2);}
+.ch260{position:relative;height:260px;}.ch300{position:relative;height:300px;}.ch200{position:relative;height:200px;}
+.footer{text-align:center;padding:20px;color:var(--muted);font-size:.7rem;border-top:1px solid var(--border);}
+</style>
 </head>
 <body>
 
-<!-- ═══════════════ HEADER -->
+<!-- HEADER -->
 <div class="header">
-    <div class="header-inner">
-        <div>
-            <h1>⚡ Financial Command Center</h1>
-            <div class="header-sub">Sachin V N · Personal Finance · July 2026</div>
-            <div><span class="live-badge"><span class="live-dot"></span>Live Dashboard</span></div>
-        </div>
-        <div class="header-right">
-            <div class="hname">Sachin V N</div>
-            <div class="hrole">Product Manager · Age 32</div>
-            <div class="hrole" style="margin-top:4px;color:var(--muted)">sachinvn22.github.io</div>
-        </div>
+  <div class="hi">
+    <div>
+      <div class="h1">⚡ Financial Command Center</div>
+      <div class="hsub">Sachin V N · Product Manager · Bengaluru · July 2026</div>
+      <div class="hfam">
+        <div class="hfc">👨 <strong>Sachin</strong> Age 32</div>
+        <div class="hfc">👩 <strong>Pooja</strong> (Sabbatical)</div>
+        <div class="hfc">👶 <strong>Gowri</strong> 1 yr · Jun 2025</div>
+        <span class="live"><span class="ldot"></span>Live</span>
+      </div>
     </div>
+    <div class="hr">
+      <div class="hn">sachinvn22</div>
+      <div class="hro">github.io/financial-dashboard</div>
+      <div class="hro" style="margin-top:4px;color:var(--muted)">Last updated: Jul 2026</div>
+    </div>
+  </div>
 </div>
 
-<!-- ═══════════════ TAB NAV -->
-<div class="tab-nav">
-    <div class="tab-inner">
-        <button class="tab-btn active" data-tab="overview"    onclick="switchTab('overview')">   <span class="tab-icon">📊</span><span class="tab-label">Overview</span></button>
-        <button class="tab-btn"        data-tab="portfolio"   onclick="switchTab('portfolio')">  <span class="tab-icon">💼</span><span class="tab-label">Portfolio</span></button>
-        <button class="tab-btn"        data-tab="goals"       onclick="switchTab('goals')">      <span class="tab-icon">🎯</span><span class="tab-label">Goals</span></button>
-        <button class="tab-btn"        data-tab="calculator"  onclick="switchTab('calculator')"> <span class="tab-icon">🧮</span><span class="tab-label">Calculator</span></button>
-    </div>
+<!-- TABS -->
+<div class="tnav">
+  <div class="ti">
+    <button class="tb active" data-t="ov" onclick="sw('ov')"><span class="ticon">📊</span><span class="tlbl">Overview</span></button>
+    <button class="tb" data-t="pf" onclick="sw('pf')"><span class="ticon">💼</span><span class="tlbl">Portfolio</span></button>
+    <button class="tb" data-t="gl" onclick="sw('gl')"><span class="ticon">🎯</span><span class="tlbl">Goals</span></button>
+    <button class="tb" data-t="ex" onclick="sw('ex')"><span class="ticon">💸</span><span class="tlbl">Expenses</span></button>
+    <button class="tb" data-t="ca" onclick="sw('ca')"><span class="ticon">🧮</span><span class="tlbl">Calculator</span></button>
+  </div>
 </div>
 
-<div class="container">
+<div class="wrap">
 
-<!-- ═══════════════════════════════════ TAB: OVERVIEW -->
-<div id="overview" class="tab-pane active">
-
-    <div class="sw">
-        <div class="g4">
-            <div class="card kpi c-indigo">
-                <div class="kpi-icon">💰</div>
-                <div class="kpi-val" id="k-nw">₹0</div>
-                <div class="kpi-name">Total Net Worth</div>
-                <div class="kpi-sub">All assets combined</div>
-            </div>
-            <div class="card kpi c-cyan">
-                <div class="kpi-icon">💵</div>
-                <div class="kpi-val" id="k-inc">₹0</div>
-                <div class="kpi-name">Monthly Income</div>
-                <div class="kpi-sub">₹34.8L per year</div>
-            </div>
-            <div class="card kpi c-emerald">
-                <div class="kpi-icon">📈</div>
-                <div class="kpi-val" id="k-inv">₹0</div>
-                <div class="kpi-name">Monthly Invested</div>
-                <div class="kpi-sub">₹29,500 unused ⚡</div>
-            </div>
-            <div class="card kpi c-amber">
-                <div class="kpi-icon">🎯</div>
-                <div class="kpi-val" id="k-rate">0%</div>
-                <div class="kpi-name">Savings Rate</div>
-                <div class="kpi-sub">Target: 35%+</div>
-            </div>
-        </div>
+<!-- ═══ TAB: OVERVIEW ═══ -->
+<div id="ov" class="tp active">
+  <div class="sw">
+    <div class="g4" style="grid-template-columns:repeat(5,1fr);">
+      <div class="card kpi ci"><div class="kico">💰</div><div class="kval" id="k1">₹0</div><div class="knm">True Net Worth</div><div class="ksub">Assets − Liabilities</div></div>
+      <div class="card kpi cc"><div class="kico">💵</div><div class="kval" id="k2">₹0</div><div class="knm">Monthly Income</div><div class="ksub">Pooja on sabbatical</div></div>
+      <div class="card kpi ce"><div class="kico">📈</div><div class="kval" id="k3">₹0</div><div class="knm">Monthly Invested</div><div class="ksub" style="color:rgba(245,158,11,.9)">₹29,500 unused ⚡</div></div>
+      <div class="card kpi ca"><div class="kico">💸</div><div class="kval" id="k4">₹0</div><div class="knm">Monthly Expenses</div><div class="ksub">All fixed costs</div></div>
+      <div class="card kpi cr2"><div class="kico">🏦</div><div class="kval" id="k5">₹0</div><div class="knm">Monthly Surplus</div><div class="ksub">Available to deploy</div></div>
     </div>
+  </div>
 
-    <div class="sw">
-        <div class="sec">Portfolio Snapshot</div>
-        <div class="g2">
-            <div class="card">
-                <div class="card-label">Asset Allocation · ₹12,58,568 total</div>
-                <div class="ch260"><canvas id="assetChart"></canvas></div>
-            </div>
-            <div class="card">
-                <div class="card-label">Monthly Cash Flow · ₹2,90,000 income</div>
-                <div class="ch260"><canvas id="cashChart"></canvas></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="sw">
-        <div class="sec">Priority Actions</div>
-        <div class="al al-danger"><span>🚨</span><div><strong>₹29,500 sitting idle every month.</strong> You have ₹1L/month capacity but invest only ₹70,500. Redirect this to Emergency Fund first — every month of delay is compounding you're missing.</div></div>
-        <div class="al al-warn"><span>⚠️</span><div><strong>Emergency Fund at only 38.7%.</strong> Target ₹6L, current ₹2.32L. At ₹29,500/month extra, this gap closes in ~4 months. Make this Priority #1.</div></div>
-        <div class="al al-warn"><span>⚠️</span><div><strong>Health cover of ₹10L is too low for 2026.</strong> A super top-up plan (₹40L cover) costs only ₹4,000–7,000/year in premium. Add it immediately.</div></div>
-        <div class="al al-info"><span>ℹ️</span><div><strong>LIC Jeevan Labh review needed.</strong> Endowment plans return ~5–6% — below inflation. Consider surrendering and moving premiums to equity SIPs for better long-term outcome.</div></div>
-        <div class="al al-success"><span>✅</span><div><strong>Strong foundation in place.</strong> Term cover, equity SIPs, PPF, NPS, SSY — all running. Optimization is the next level from here.</div></div>
-    </div>
-</div>
-
-<!-- ═══════════════════════════════════ TAB: PORTFOLIO -->
-<div id="portfolio" class="tab-pane">
-    <div class="sw">
-        <div class="sec">Assets &amp; Monthly Investments</div>
-        <div class="g2">
-            <div class="card">
-                <div class="card-label">Current Portfolio · ₹12,58,568 total</div>
-                <table>
-                    <thead><tr><th>Asset</th><th>Category</th><th style="text-align:right">Value</th></tr></thead>
-                    <tbody>
-                        <tr><td>Mutual Funds (Equity)</td><td><span class="tag ti">Equity</span></td><td class="amt">₹6,58,000</td></tr>
-                        <tr><td>Liquid Fund</td><td><span class="tag tc">Liquid</span></td><td class="amt">₹2,32,000</td></tr>
-                        <tr><td>PPF</td><td><span class="tag ta">Long-term</span></td><td class="amt">₹1,50,000</td></tr>
-                        <tr><td>NPS</td><td><span class="tag tv">Retirement</span></td><td class="amt">₹1,16,000</td></tr>
-                        <tr><td>Axis RD</td><td><span class="tag te">Debt</span></td><td class="amt">₹80,901</td></tr>
-                        <tr><td>Stocks (Direct)</td><td><span class="tag ti">Equity</span></td><td class="amt">₹16,667</td></tr>
-                        <tr><td>SSY (Gowri)</td><td><span class="tag tp">Education</span></td><td class="amt">₹5,000</td></tr>
-                        <tr class="tr-tot"><td colspan="2"><strong>Total Net Worth</strong></td><td class="amt" style="color:#a78bfa">₹12,58,568</td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="card">
-                <div class="card-label">Monthly Investments · ₹70,500 / month</div>
-                <table>
-                    <thead><tr><th>Investment</th><th>Type</th><th style="text-align:right">Monthly</th></tr></thead>
-                    <tbody>
-                        <tr><td>Equity SIPs</td><td><span class="tag ti">Equity</span></td><td class="amt">₹23,000</td></tr>
-                        <tr><td>PPF</td><td><span class="tag ta">Long-term</span></td><td class="amt">₹15,000</td></tr>
-                        <tr><td>Axis RD</td><td><span class="tag te">Debt</span></td><td class="amt">₹10,000</td></tr>
-                        <tr><td>Liquid Fund SIP</td><td><span class="tag tc">Liquid</span></td><td class="amt">₹10,000</td></tr>
-                        <tr><td>Gold Chit</td><td><span class="tag ta">Gold</span></td><td class="amt">₹7,500</td></tr>
-                        <tr><td>HDFC RD</td><td><span class="tag te">Debt</span></td><td class="amt">₹5,000</td></tr>
-                        <tr class="tr-tot"><td colspan="2"><strong>Total Invested</strong></td><td class="amt" style="color:#a78bfa">₹70,500</td></tr>
-                        <tr class="tr-warn"><td colspan="2" style="color:#f59e0b"><strong>⚡ Unused Capacity</strong></td><td class="amt" style="color:#f59e0b"><strong>₹29,500</strong></td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="sw">
-        <div class="sec">Insurance Coverage</div>
-        <div class="g3">
-            <div class="ins"><div class="ins-ico" style="background:rgba(244,63,94,.15)">❤️</div><div><div class="ins-n">Health Insurance</div><div class="ins-v">₹10 Lakh</div><div class="ins-s" style="color:#f59e0b">⚠ Upgrade to ₹25–50L recommended</div></div></div>
-            <div class="ins"><div class="ins-ico" style="background:rgba(99,102,241,.15)">🛡</div><div><div class="ins-n">Term Insurance</div><div class="ins-v">₹1 Crore</div><div class="ins-s" style="color:#10b981">✓ Good baseline cover</div></div></div>
-            <div class="ins"><div class="ins-ico" style="background:rgba(245,158,11,.15)">🏛</div><div><div class="ins-n">LIC Jeevan Labh</div><div class="ins-v">₹5 Lakh</div><div class="ins-s" style="color:var(--muted2)">Endowment · ~5–6% returns</div></div></div>
-            <div class="ins"><div class="ins-ico" style="background:rgba(16,185,129,.15)">📮</div><div><div class="ins-n">Postal Life Insurance</div><div class="ins-v">₹20 Lakh</div><div class="ins-s" style="color:#10b981">✓ Govt backed</div></div></div>
-            <div class="ins" style="border-color:rgba(245,158,11,.3)"><div class="ins-ico" style="background:rgba(245,158,11,.1)">⚠️</div><div><div class="ins-n" style="color:#f59e0b">Total Life Cover</div><div class="ins-v" style="color:#f59e0b">₹1.25 Crore</div><div class="ins-s" style="color:#f59e0b">Suggest ₹2–3Cr at age 32</div></div></div>
-            <div class="ins" style="border-color:rgba(244,63,94,.3)"><div class="ins-ico" style="background:rgba(244,63,94,.1)">🚨</div><div><div class="ins-n" style="color:#f43f5e">Wife's Coverage</div><div class="ins-v" style="color:#f43f5e">Unknown</div><div class="ins-s" style="color:#f43f5e">Verify wife's term + health cover</div></div></div>
-        </div>
-    </div>
-</div>
-
-<!-- ═══════════════════════════════════ TAB: GOALS -->
-<div id="goals" class="tab-pane">
-
-    <div class="sw">
-        <div class="sec">Wealth Milestones · At 12% annual return</div>
-        <div class="g5" id="milestone-grid"></div>
-    </div>
-
-    <div class="sw">
-        <div class="sec">Goal Progress Tracker</div>
-        <div class="g2">
-            <div class="card">
-                <div class="gi">
-                    <div class="gh"><div class="gn">🛡 Emergency Fund</div><div class="gp">38.7% · ₹2.32L of ₹6L</div></div>
-                    <div class="pbg"><div class="pf" data-w="38.7" style="background:linear-gradient(90deg,#f59e0b,#fbbf24)"></div></div>
-                    <div class="gf"><span>₹3.68L remaining</span><span>~4 months to close</span></div>
-                </div>
-                <div class="gi">
-                    <div class="gh"><div class="gn">👧 Gowri's Education</div><div class="gp">SSY started · ₹5K</div></div>
-                    <div class="pbg"><div class="pf" data-w="0.1" style="background:linear-gradient(90deg,#22d3ee,#38bdf8)"></div></div>
-                    <div class="gf"><span style="color:var(--muted);font-style:italic">Add Gowri's age to calculate target</span></div>
-                </div>
-                <div class="gi">
-                    <div class="gh"><div class="gn">🏡 House Purchase</div><div class="gp">Not started</div></div>
-                    <div class="pbg"><div class="pf" data-w="0" style="background:linear-gradient(90deg,#84cc16,#65a30d)"></div></div>
-                    <div class="gf"><span style="color:var(--muted);font-style:italic">Add budget &amp; target year to track</span></div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="gi">
-                    <div class="gh"><div class="gn">🧓 Retirement Corpus</div><div class="gp">NPS ₹1.16L started</div></div>
-                    <div class="pbg"><div class="pf" data-w="0.23" style="background:linear-gradient(90deg,#8b5cf6,#a78bfa)"></div></div>
-                    <div class="gf"><span style="color:var(--muted);font-style:italic">Add retirement age for projection</span></div>
-                </div>
-                <div class="gi">
-                    <div class="gh"><div class="gn">💎 ₹10Cr Wealth Goal</div><div class="gp">1.26% · ₹12.59L of ₹10Cr</div></div>
-                    <div class="pbg"><div class="pf" data-w="1.26" style="background:linear-gradient(90deg,#10b981,#34d399)"></div></div>
-                    <div class="gf"><span>₹12.59L current corpus</span><span>~20 yrs at 12%</span></div>
-                </div>
-                <div class="gi">
-                    <div class="gh"><div class="gn">🦅 Financial Independence</div><div class="gp">Foundation stage</div></div>
-                    <div class="pbg"><div class="pf" data-w="5" style="background:linear-gradient(90deg,#f43f5e,#fb7185)"></div></div>
-                    <div class="gf"><span style="color:var(--muted);font-style:italic">FI number = 25× annual expenses</span></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="sw">
-        <div class="sec">25-Year Wealth Projection · ₹10Cr target</div>
-        <div class="card">
-            <div style="margin-bottom:12px;font-size:.8rem;color:var(--muted2)">
-                Start: <strong style="color:var(--text)">₹12.59L</strong> &nbsp;·&nbsp;
-                Monthly: <strong style="color:var(--text)">₹70,500</strong> &nbsp;·&nbsp;
-                3 return scenarios &nbsp;·&nbsp;
-                <span style="color:#f43f5e">— — dashed = ₹10Cr target</span>
-            </div>
-            <div class="ch320"><canvas id="projChart"></canvas></div>
-        </div>
-    </div>
-</div>
-
-<!-- ═══════════════════════════════════ TAB: CALCULATOR -->
-<div id="calculator" class="tab-pane">
+  <div class="sw">
+    <div class="sec">Snapshot</div>
     <div class="g2">
-
-        <div class="calc-card">
-            <div class="calc-title">📈 <span>SIP Future Value</span></div>
-            <div class="il"><label>Monthly SIP Amount (₹)</label><input type="number" class="ci" id="sip-amt" value="23000" min="500" step="500" oninput="calcSIP()"></div>
-            <div class="il"><label>Expected Annual Return: <strong id="sip-rl" style="color:#a78bfa">12%</strong></label><input type="range" id="sip-r" min="6" max="20" value="12" step=".5" oninput="document.getElementById('sip-rl').textContent=this.value+'%';calcSIP()"></div>
-            <div class="il"><label>Investment Period: <strong id="sip-yl" style="color:#22d3ee">20 years</strong></label><input type="range" id="sip-y" min="1" max="30" value="20" step="1" oninput="document.getElementById('sip-yl').textContent=this.value+' years';calcSIP()"></div>
-            <div class="cr">
-                <div class="rg">
-                    <div><div class="rl">Total Invested</div><div class="rv inv" id="sip-inv">₹0</div></div>
-                    <div><div class="rl">Wealth Gained</div><div class="rv gain" id="sip-gain">₹0</div></div>
-                    <div><div class="rl">Future Value</div><div class="rv tot" id="sip-tot">₹0</div></div>
-                </div>
-            </div>
-            <div class="ch200" style="margin-top:16px"><canvas id="sipChart"></canvas></div>
+      <div class="card">
+        <div class="clbl">Net Worth Breakdown</div>
+        <div style="margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:.8rem;">
+            <span style="color:#10b981">Assets</span><span style="color:#10b981;font-weight:700">₹12,58,568</span>
+          </div>
+          <div class="pbg"><div class="pf" data-w="100" style="background:linear-gradient(90deg,#10b981,#34d399)"></div></div>
+          <div style="display:flex;justify-content:space-between;margin-top:10px;margin-bottom:6px;font-size:.8rem;">
+            <span style="color:#f43f5e">Liabilities</span><span style="color:#f43f5e;font-weight:700">₹7,02,606</span>
+          </div>
+          <div class="pbg"><div class="pf" data-w="55.8" style="background:linear-gradient(90deg,#f43f5e,#fb7185)"></div></div>
+          <div style="margin-top:14px;padding:12px;background:rgba(99,102,241,.08);border-radius:10px;border:1px solid rgba(99,102,241,.2);">
+            <div style="font-size:.7rem;color:var(--muted2);">True Net Worth</div>
+            <div style="font-size:1.6rem;font-weight:800;color:#a78bfa;margin-top:2px;">₹5,55,962</div>
+            <div style="font-size:.7rem;color:var(--muted);margin-top:2px;">44.2% equity (unencumbered)</div>
+          </div>
         </div>
-
-        <div class="calc-card">
-            <div class="calc-title">🎯 <span>Goal Planner</span></div>
-            <div class="il"><label>Goal Amount (₹)</label><input type="number" class="ci" id="g-amt" value="10000000" step="100000" oninput="calcGoal()"></div>
-            <div class="il"><label>Time Available: <strong id="g-yl" style="color:#22d3ee">20 years</strong></label><input type="range" id="g-y" min="1" max="30" value="20" step="1" oninput="document.getElementById('g-yl').textContent=this.value+' years';calcGoal()"></div>
-            <div class="il"><label>Expected Return: <strong id="g-rl" style="color:#a78bfa">12%</strong></label><input type="range" id="g-r" min="6" max="20" value="12" step=".5" oninput="document.getElementById('g-rl').textContent=this.value+'%';calcGoal()"></div>
-            <div class="cr">
-                <div style="text-align:center;padding:10px 0">
-                    <div class="rl" style="margin-bottom:8px">Required Monthly SIP</div>
-                    <div style="font-size:2.2rem;font-weight:800;color:#a78bfa" id="g-sip">₹0</div>
-                    <div style="font-size:.75rem;color:var(--muted2);margin-top:8px" id="g-ctx"></div>
-                </div>
-            </div>
-            <div style="margin-top:20px">
-                <div class="sec" style="font-size:.63rem">Quick Goal Presets</div>
-                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
-                    <button class="preset-btn" onclick="setGoal(600000,1,12)">🛡 Emergency ₹6L</button>
-                    <button class="preset-btn" onclick="setGoal(5000000,15,12)">👧 Education ₹50L</button>
-                    <button class="preset-btn" onclick="setGoal(10000000,7,12)">🏡 House ₹1Cr</button>
-                    <button class="preset-btn" onclick="setGoal(50000000,25,12)">🧓 Retire ₹5Cr</button>
-                    <button class="preset-btn" onclick="setGoal(100000000,20,12)">💎 Wealth ₹10Cr</button>
-                </div>
-            </div>
+        <div class="clbl" style="margin-top:6px;">Asset Allocation</div>
+        <div class="ch260"><canvas id="assetChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="clbl">Monthly Money Flow</div>
+        <div class="ch300"><canvas id="flowChart"></canvas></div>
+        <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div style="background:rgba(16,185,129,.08);border-radius:8px;padding:10px;text-align:center;">
+            <div style="font-size:.65rem;color:var(--muted2);">Invested</div>
+            <div style="font-size:1rem;font-weight:700;color:#10b981;">26.1%</div>
+            <div style="font-size:.65rem;color:var(--muted);">of income</div>
+          </div>
+          <div style="background:rgba(245,158,11,.08);border-radius:8px;padding:10px;text-align:center;">
+            <div style="font-size:.65rem;color:var(--muted2);">Expenses</div>
+            <div style="font-size:1rem;font-weight:700;color:#f59e0b;">41.8%</div>
+            <div style="font-size:.65rem;color:var(--muted);">of income</div>
+          </div>
         </div>
-
+      </div>
     </div>
+  </div>
+
+  <div class="sw">
+    <div class="sec">Priority Actions</div>
+    <div class="ald al"><span>🚨</span><div><strong>₹29,500 sitting idle every month.</strong> You have ₹1L capacity but invest only ₹70,500. After closing Emergency Fund (~4 months), redirect this into Gowri's equity SIP immediately.</div></div>
+    <div class="alw al"><span>⚠️</span><div><strong>Emergency Fund only 38.7% complete.</strong> Target ₹6L, current ₹2.32L. Channel the ₹29,500 unused capacity here — closes in ~4 months.</div></div>
+    <div class="ali al"><span>🎉</span><div><strong>Laptop EMI ends in ~4 months (Nov 2026) + Car loan ends Apr 2027.</strong> That frees ₹34,090/month. A massive opportunity — deploy it into goals immediately.</div></div>
+    <div class="alw al"><span>⚠️</span><div><strong>Health insurance ₹10L is dangerously low for a family in 2026.</strong> A super top-up plan (₹40L cover) costs only ₹5,000–7,000/year. Add it at next renewal.</div></div>
+    <div class="ali al"><span>ℹ️</span><div><strong>PLI ₹28,500/year decision pending.</strong> If returns are below 6%, consider redirecting the premium to equity SIP — the difference over 15 years is significant.</div></div>
+    <div class="als al"><span>✅</span><div><strong>Strong foundation.</strong> Term ₹1Cr, equity SIPs, PPF, NPS, SSY all running. Gowri's SSY started at birth — perfect timing. Now it's about gap-filling and compounding.</div></div>
+  </div>
 </div>
 
-</div><!-- /container -->
+<!-- ═══ TAB: PORTFOLIO ═══ -->
+<div id="pf" class="tp">
+  <div class="sw">
+    <div class="sec">Assets & Liabilities</div>
+    <div class="g2">
+      <div class="card">
+        <div class="clbl">Current Assets · ₹12,58,568</div>
+        <table>
+          <thead><tr><th>Asset</th><th>Category</th><th style="text-align:right">Value</th></tr></thead>
+          <tbody>
+            <tr><td>Equity Mutual Funds</td><td><span class="tag ti2">Equity</span></td><td class="amt">₹6,58,000</td></tr>
+            <tr><td>Liquid Fund</td><td><span class="tag tc2">Liquid</span></td><td class="amt">₹2,32,000</td></tr>
+            <tr><td>PPF</td><td><span class="tag ta2">Long-term</span></td><td class="amt">₹1,50,000</td></tr>
+            <tr><td>NPS</td><td><span class="tag tv2">Retirement</span></td><td class="amt">₹1,16,000</td></tr>
+            <tr><td>Axis RD</td><td><span class="tag te2">Debt</span></td><td class="amt">₹80,901</td></tr>
+            <tr><td>Stocks (Direct)</td><td><span class="tag ti2">Equity</span></td><td class="amt">₹16,667</td></tr>
+            <tr><td>SSY (Gowri 🎀)</td><td><span class="tag tp2">Education</span></td><td class="amt">₹5,000</td></tr>
+            <tr class="trt"><td colspan="2"><strong>Total Assets</strong></td><td class="amt" style="color:#10b981">₹12,58,568</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="clbl">Liabilities</div>
+        <table>
+          <thead><tr><th>Liability</th><th>EMI / Month</th><th style="text-align:right">Outstanding</th></tr></thead>
+          <tbody>
+            <tr><td><div>Car Loan</div><div style="font-size:.68rem;color:var(--muted)">Ends Apr 2027</div></td><td>₹16,090</td><td class="amt amtr">₹6,10,606</td></tr>
+            <tr><td><div>Laptop EMI</div><div style="font-size:.68rem;color:#f59e0b">4 months left ⚡</div></td><td>₹18,000</td><td class="amt amtr">₹72,000</td></tr>
+            <tr><td><div>Credit Cards</div><div style="font-size:.68rem;color:var(--muted)">Variable ₹10K–40K/mo</div></td><td>—</td><td class="amt amtr">~₹20,000</td></tr>
+            <tr class="trt"><td colspan="2"><strong>Total Liabilities</strong></td><td class="amt amtr">₹7,02,606</td></tr>
+            <tr style="background:rgba(99,102,241,.07)"><td colspan="2"><strong>✅ True Net Worth</strong></td><td class="amt" style="color:#a78bfa"><strong>₹5,55,962</strong></td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:16px;">
+          <div class="clbl">Monthly Investments · ₹70,500/month</div>
+          <table>
+            <thead><tr><th>Investment</th><th>Type</th><th style="text-align:right">Monthly</th></tr></thead>
+            <tbody>
+              <tr><td>Equity SIPs</td><td><span class="tag ti2">Equity</span></td><td class="amt">₹23,000</td></tr>
+              <tr><td>PPF</td><td><span class="tag ta2">Long-term</span></td><td class="amt">₹15,000</td></tr>
+              <tr><td>Axis RD</td><td><span class="tag te2">Debt</span></td><td class="amt">₹10,000</td></tr>
+              <tr><td>Liquid Fund SIP</td><td><span class="tag tc2">Liquid</span></td><td class="amt">₹10,000</td></tr>
+              <tr><td>Gold Chit</td><td><span class="tag ta2">Gold</span></td><td class="amt">₹7,500</td></tr>
+              <tr><td>HDFC RD</td><td><span class="tag te2">Debt</span></td><td class="amt">₹5,000</td></tr>
+              <tr class="trt"><td colspan="2"><strong>Total</strong></td><td class="amt" style="color:#a78bfa">₹70,500</td></tr>
+              <tr class="trw"><td colspan="2" style="color:#f59e0b"><strong>⚡ Unused Capacity</strong></td><td class="amt" style="color:#f59e0b"><strong>₹29,500</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<div class="footer">⚡ Sachin's Financial Command Center &nbsp;·&nbsp; July 2026 &nbsp;·&nbsp; 🔒 Keep this private</div>
+  <div class="sw">
+    <div class="sec">Insurance Coverage</div>
+    <div class="g4">
+      <div class="ins"><div class="inico" style="background:rgba(244,63,94,.15)">❤️</div><div><div class="inn">Health Insurance</div><div class="inv">₹10 Lakh</div><div class="ins2" style="color:#f59e0b">⚠ Upgrade to ₹25–50L</div></div></div>
+      <div class="ins"><div class="inico" style="background:rgba(99,102,241,.15)">🛡</div><div><div class="inn">Term Insurance</div><div class="inv">₹1 Crore</div><div class="ins2" style="color:#10b981">✓ ₹2,100/month</div></div></div>
+      <div class="ins"><div class="inico" style="background:rgba(245,158,11,.15)">🏛</div><div><div class="inn">LIC Jeevan Labh</div><div class="inv">₹5 Lakh</div><div class="ins2" style="color:var(--muted2)">₹14K/half-yr · ~5-6% ret.</div></div></div>
+      <div class="ins" style="border-color:rgba(148,163,184,.2)"><div class="inico" style="background:rgba(148,163,184,.1)">📮</div><div><div class="inn">PLI (Decision Pending)</div><div class="inv" style="color:#94a3b8">₹20 Lakh</div><div class="ins2" style="color:#94a3b8">₹28,500/yr · Review needed</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TAB: GOALS ═══ -->
+<div id="gl" class="tp">
+  <div class="sw">
+    <div class="sec">Wealth Milestones · At 12% returns · Starting ₹12.59L + ₹70,500/mo</div>
+    <div class="g5" id="mgrid"></div>
+  </div>
+
+  <div class="sw">
+    <div class="sec">Goal Cards · Required vs Currently Investing</div>
+    <div class="g6" id="gcards"></div>
+  </div>
+
+  <div class="sw">
+    <div class="sec">25-Year Wealth Projection</div>
+    <div class="card">
+      <div style="margin-bottom:10px;font-size:.78rem;color:var(--muted2);">Start: <strong style="color:var(--text)">₹12.59L</strong> · Monthly: <strong style="color:var(--text)">₹70,500</strong> · 3 scenarios · <span style="color:#f43f5e">- - red = ₹10Cr target</span></div>
+      <div class="ch300"><canvas id="projChart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TAB: EXPENSES ═══ -->
+<div id="ex" class="tp">
+  <div class="sw">
+    <div class="g3" style="grid-template-columns:repeat(3,1fr)">
+      <div class="card kpi ce"><div class="kico">💸</div><div class="kval">₹1,12,939</div><div class="knm">Total Monthly Expenses</div><div class="ksub" style="color:rgba(16,185,129,.8)">41.8% of income</div></div>
+      <div class="card kpi ca"><div class="kico">🔒</div><div class="kval">₹72,939</div><div class="knm">Fixed Expenses</div><div class="ksub" style="color:rgba(245,158,11,.8)">Rent, EMIs, insurance</div></div>
+      <div class="card kpi cr2"><div class="kico">🎲</div><div class="kval">₹40,000</div><div class="knm">Variable (avg)</div><div class="ksub" style="color:rgba(251,113,133,.8)">CC, shopping, dining</div></div>
+    </div>
+  </div>
+
+  <div class="sw">
+    <div class="sec">Expense Breakdown</div>
+    <div class="g2">
+      <div class="card">
+        <div class="clbl">By Category</div>
+        <div class="ch260"><canvas id="expChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="clbl">Monthly Expense Details</div>
+        <table>
+          <thead><tr><th>Expense</th><th>Category</th><th style="text-align:right">Monthly</th></tr></thead>
+          <tbody>
+            <tr><td><div>Rent</div><div style="font-size:.66rem;color:#f59e0b">Until Mar 2027</div></td><td><span class="tag ti2">Housing</span></td><td class="amt">₹18,750</td></tr>
+            <tr><td>Car Loan EMI</td><td><span class="tag tr3">EMI</span></td><td class="amt">₹16,090</td></tr>
+            <tr><td><div>Laptop EMI</div><div style="font-size:.66rem;color:#10b981">Ends Nov 2026 ✓</div></td><td><span class="tag tr3">EMI</span></td><td class="amt">₹18,000</td></tr>
+            <tr><td>Groceries</td><td><span class="tag te2">Food</span></td><td class="amt">₹10,000</td></tr>
+            <tr><td>Car Fuel</td><td><span class="tag ta2">Transport</span></td><td class="amt">₹10,000</td></tr>
+            <tr><td>Credit Cards (avg)</td><td><span class="tag ts2">Variable</span></td><td class="amt">₹20,000</td></tr>
+            <tr><td>Dining Out</td><td><span class="tag te2">Food</span></td><td class="amt">₹5,000</td></tr>
+            <tr><td>Term Insurance</td><td><span class="tag tv2">Insurance</span></td><td class="amt">₹2,100</td></tr>
+            <tr><td>LIC (avg monthly)</td><td><span class="tag tv2">Insurance</span></td><td class="amt">₹2,333</td></tr>
+            <tr><td>Health Insurance</td><td><span class="tag tv2">Insurance</span></td><td class="amt">₹1,833</td></tr>
+            <tr><td>Gowri (Baby)</td><td><span class="tag tp2">Family</span></td><td class="amt">₹3,500</td></tr>
+            <tr><td>Bills & Internet</td><td><span class="tag ts2">Utilities</span></td><td class="amt">₹2,000</td></tr>
+            <tr><td>OTT Subscriptions</td><td><span class="tag tg2">Entertainment</span></td><td class="amt">₹833</td></tr>
+            <tr><td>Clothing / Personal</td><td><span class="tag tg2">Personal</span></td><td class="amt">₹2,500</td></tr>
+            <tr class="trt"><td colspan="2"><strong>Total</strong></td><td class="amt" style="color:#f43f5e">₹1,12,939</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="sw">
+    <div class="sec">EMI Freedom Timeline · Money unlocking soon</div>
+    <div class="etl">
+      <div class="eti"><div class="etdot" style="background:#f59e0b"></div><div><div class="etn">Laptop EMI Ends</div><div class="etd">November 2026 · ~4 months away</div></div><div class="etb"><div class="etfree">+₹18,000/month freed</div><div class="etamt">Redirect → Gowri's equity SIP</div></div></div>
+      <div class="eti"><div class="etdot" style="background:#f43f5e"></div><div><div class="etn">Car Loan Ends</div><div class="etd">April 2027 · ~9 months away</div></div><div class="etb"><div class="etfree">+₹16,090/month freed</div><div class="etamt">Redirect → House / Australia fund</div></div></div>
+      <div class="eti"><div class="etdot" style="background:#6366f1"></div><div><div class="etn">Rent Review</div><div class="etd">March 2027 · Current lease ends</div></div><div class="etb"><div class="etfree" style="color:#f59e0b">Review lease terms</div><div class="etamt">May change ↑ or ↓</div></div></div>
+      <div class="eti" style="border-color:rgba(16,185,129,.3)"><div class="etdot" style="background:#10b981"></div><div><div class="etn" style="color:#10b981">Total Freed by May 2027</div><div class="etd">Laptop + Car combined</div></div><div class="etb"><div class="etfree" style="font-size:1rem">+₹34,090/month</div><div class="etamt">New investable capacity</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TAB: CALCULATOR ═══ -->
+<div id="ca" class="tp">
+  <div class="g2">
+    <div class="cc2">
+      <div class="cct">📈 <span>SIP Future Value</span></div>
+      <div class="il"><label>Monthly SIP (₹)</label><input type="number" class="ci2" id="sa" value="23000" step="500" oninput="cS()"></div>
+      <div class="il"><label>Annual Return: <strong id="srl" style="color:#a78bfa">12%</strong></label><input type="range" id="sr" min="6" max="20" value="12" step=".5" oninput="document.getElementById('srl').textContent=this.value+'%';cS()"></div>
+      <div class="il"><label>Period: <strong id="syl" style="color:#22d3ee">20 years</strong></label><input type="range" id="sy" min="1" max="30" value="20" step="1" oninput="document.getElementById('syl').textContent=this.value+' years';cS()"></div>
+      <div class="cr3"><div class="rg">
+        <div><div class="rl">Invested</div><div class="rv inv" id="si">₹0</div></div>
+        <div><div class="rl">Gains</div><div class="rv gain" id="sg">₹0</div></div>
+        <div><div class="rl">Total</div><div class="rv tot" id="st">₹0</div></div>
+      </div></div>
+      <div class="ch200" style="margin-top:14px"><canvas id="sipChart"></canvas></div>
+    </div>
+
+    <div class="cc2">
+      <div class="cct">🎯 <span>Goal Planner</span></div>
+      <div class="il"><label>Goal Amount (₹)</label><input type="number" class="ci2" id="ga" value="10000000" step="100000" oninput="cG()"></div>
+      <div class="il"><label>Time: <strong id="gyl" style="color:#22d3ee">20 years</strong></label><input type="range" id="gy" min="1" max="30" value="20" step="1" oninput="document.getElementById('gyl').textContent=this.value+' years';cG()"></div>
+      <div class="il"><label>Return: <strong id="grl" style="color:#a78bfa">12%</strong></label><input type="range" id="gr" min="6" max="20" value="12" step=".5" oninput="document.getElementById('grl').textContent=this.value+'%';cG()"></div>
+      <div class="cr3" style="text-align:center;padding:20px">
+        <div class="rl" style="margin-bottom:8px">Required Monthly SIP</div>
+        <div style="font-size:2rem;font-weight:800;color:#a78bfa" id="gsip">₹0</div>
+        <div style="font-size:.72rem;color:var(--muted2);margin-top:8px" id="gctx"></div>
+      </div>
+      <div style="margin-top:18px">
+        <div class="sec" style="font-size:.62rem">Sachin's Goal Presets</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">
+          <button class="pb" onclick="sg(600000,1,8)">🛡 Emergency ₹6L</button>
+          <button class="pb" onclick="sg(15000000,17,12)">👧 Gowri Edu ₹1.5Cr</button>
+          <button class="pb" onclick="sg(4500000,7,10)">🏡 House ₹45L DP</button>
+          <button class="pb" onclick="sg(4000000,6,10)">✈️ Australia ₹40L</button>
+          <button class="pb" onclick="sg(50000000,17,12)">🦅 FI ₹5Cr</button>
+          <button class="pb" onclick="sg(100000000,23,12)">💎 ₹10Cr Wealth</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+<div class="footer">⚡ Sachin's Financial Command Center · Bengaluru · July 2026 · 🔒 Private</div>
 
 <script>
-    // ── DEFAULTS ──────────────────────────────────────────────────────
-    Chart.defaults.color = '#64748b';
-    Chart.defaults.borderColor = 'rgba(148,163,184,0.06)';
+Chart.defaults.color='#64748b';
+Chart.defaults.borderColor='rgba(148,163,184,.06)';
 
-    // ── FORMAT ────────────────────────────────────────────────────────
-    const fmt = v => v>=1e7 ? '₹'+(v/1e7).toFixed(2)+' Cr' : v>=1e5 ? '₹'+(v/1e5).toFixed(2)+'L' : '₹'+Math.round(v).toLocaleString('en-IN');
-    const fmtS = v => v>=1e7 ? '₹'+(v/1e7).toFixed(1)+'Cr' : v>=1e5 ? '₹'+(v/1e5).toFixed(0)+'L' : '₹'+(v/1000).toFixed(0)+'K';
+const fmt=v=>v>=1e7?'₹'+(v/1e7).toFixed(2)+' Cr':v>=1e5?'₹'+(v/1e5).toFixed(2)+'L':'₹'+Math.round(v).toLocaleString('en-IN');
+const fmtS=v=>v>=1e7?'₹'+(v/1e7).toFixed(1)+'Cr':v>=1e5?'₹'+(v/1e5).toFixed(0)+'L':'₹'+(v/1000).toFixed(0)+'K';
 
-    // ── TABS ──────────────────────────────────────────────────────────
-    function switchTab(id) {
-        document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        document.querySelector('[data-tab="'+id+'"]').classList.add('active');
-        if(id==='goals') setTimeout(animateBars, 50);
-    }
+// ── TAB SWITCH ──
+function sw(id){
+  document.querySelectorAll('.tp').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector('[data-t="'+id+'"]').classList.add('active');
+  if(id==='gl')setTimeout(animBars,60);
+  if(id==='ex')setTimeout(animBars,60);
+}
 
-    // ── ANIMATED COUNTERS ─────────────────────────────────────────────
-    function animCount(el, target, ms, fmt) {
-        const t0 = performance.now();
-        (function step(now){
-            const p = Math.min((now-t0)/ms,1);
-            const e = 1-Math.pow(1-p,3);
-            el.textContent = fmt(e*target);
-            if(p<1) requestAnimationFrame(step);
-        })(performance.now());
-    }
+// ── COUNTER ──
+function cnt(el,target,ms,f){
+  const t0=performance.now();
+  (function s(now){const p=Math.min((now-t0)/ms,1),e=1-Math.pow(1-p,3);el.textContent=f(e*target);if(p<1)requestAnimationFrame(s);})(performance.now());
+}
+window.addEventListener('load',()=>{
+  cnt(document.getElementById('k1'),555962,1800,v=>fmt(v));
+  cnt(document.getElementById('k2'),270000,1400,v=>'₹'+(v/1e5).toFixed(2)+'L');
+  cnt(document.getElementById('k3'),70500, 1600,v=>'₹'+Math.round(v).toLocaleString('en-IN'));
+  cnt(document.getElementById('k4'),112939,1700,v=>'₹'+Math.round(v).toLocaleString('en-IN'));
+  cnt(document.getElementById('k5'),86561, 1900,v=>'₹'+Math.round(v).toLocaleString('en-IN'));
+  setTimeout(animBars,200);
+});
 
-    window.addEventListener('load', ()=>{
-        animCount(document.getElementById('k-nw'),   1258568, 1800, v=>v>=1e5?'₹'+(v/1e5).toFixed(2)+'L':'₹'+Math.round(v));
-        animCount(document.getElementById('k-inc'),  290000,  1400, v=>'₹'+(v/1e5).toFixed(2)+'L');
-        animCount(document.getElementById('k-inv'),  70500,   1600, v=>'₹'+Math.round(v).toLocaleString('en-IN'));
-        animCount(document.getElementById('k-rate'), 24.3,    1500, v=>v.toFixed(1)+'%');
-    });
+function animBars(){document.querySelectorAll('.pf').forEach(el=>{el.style.width=Math.min(parseFloat(el.dataset.w||0),100)+'%';});}
 
-    // ── PROGRESS BARS ─────────────────────────────────────────────────
-    function animateBars() {
-        document.querySelectorAll('.pf').forEach(el=>{
-            el.style.width = Math.min(parseFloat(el.dataset.w),100)+'%';
-        });
-    }
+// ── ASSET DONUT ──
+new Chart(document.getElementById('assetChart'),{
+  type:'doughnut',
+  data:{labels:['Equity MF','Liquid Fund','PPF','NPS','Axis RD','Stocks','SSY'],
+    datasets:[{data:[658000,232000,150000,116000,80901,16667,5000],
+      backgroundColor:['#6366f1','#22d3ee','#f59e0b','#a78bfa','#10b981','#ec4899','#84cc16'],
+      borderWidth:3,borderColor:'#0c1428',hoverOffset:8}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'65%',
+    plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10},padding:8,color:'#94a3b8'}},
+      tooltip:{callbacks:{label:ctx=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return ' '+fmt(ctx.parsed)+' ('+(ctx.parsed/t*100).toFixed(1)+'%)';}}}}
+  }
+});
 
-    // ── ASSET DOUGHNUT ────────────────────────────────────────────────
-    new Chart(document.getElementById('assetChart'),{
-        type:'doughnut',
-        data:{
-            labels:['Equity MF','Liquid Fund','PPF','NPS','Axis RD','Stocks','SSY'],
-            datasets:[{
-                data:[658000,232000,150000,116000,80901,16667,5000],
-                backgroundColor:['#6366f1','#22d3ee','#f59e0b','#a78bfa','#10b981','#ec4899','#84cc16'],
-                borderWidth:3, borderColor:'#0c1428', hoverOffset:8
-            }]
-        },
-        options:{
-            responsive:true, maintainAspectRatio:false, cutout:'65%',
-            plugins:{
-                legend:{ position:'right', labels:{boxWidth:10,font:{size:11},padding:10,color:'#94a3b8'} },
-                tooltip:{ callbacks:{label:ctx=>{ const t=ctx.dataset.data.reduce((a,b)=>a+b,0); return ' '+fmt(ctx.parsed)+' ('+(ctx.parsed/t*100).toFixed(1)+'%)'; }} }
-            }
-        }
-    });
+// ── CASH FLOW ──
+new Chart(document.getElementById('flowChart'),{
+  type:'doughnut',
+  data:{labels:['Invested','Fixed Exp','Variable Exp','Surplus'],
+    datasets:[{data:[70500,72939,40000,86561],
+      backgroundColor:['rgba(16,185,129,.8)','rgba(244,63,94,.7)','rgba(245,158,11,.7)','rgba(99,102,241,.7)'],
+      borderWidth:3,borderColor:'#0c1428',hoverOffset:8}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'60%',
+    plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11},padding:10,color:'#94a3b8'}},
+      tooltip:{callbacks:{label:ctx=>` ${fmt(ctx.parsed)}/mo (${(ctx.parsed/270000*100).toFixed(1)}%)`}}}
+  }
+});
 
-    // ── CASH FLOW BAR ─────────────────────────────────────────────────
-    new Chart(document.getElementById('cashChart'),{
-        type:'bar',
-        data:{
-            labels:['Income','Invested','Expenses'],
-            datasets:[{
-                data:[290000,70500,219500],
-                backgroundColor:['rgba(99,102,241,.7)','rgba(16,185,129,.7)','rgba(245,158,11,.7)'],
-                borderColor:['#6366f1','#10b981','#f59e0b'],
-                borderWidth:1, borderRadius:8, borderSkipped:false
-            }]
-        },
-        options:{
-            responsive:true, maintainAspectRatio:false,
-            plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>' '+fmt(ctx.parsed.y)+'/month'}}},
-            scales:{
-                y:{grid:{color:'rgba(148,163,184,.06)'}, ticks:{color:'#64748b',callback:v=>'₹'+v/1000+'K'}},
-                x:{grid:{display:false}, ticks:{color:'#64748b'}}
-            }
-        }
-    });
+// ── EXPENSE DONUT ──
+new Chart(document.getElementById('expChart'),{
+  type:'doughnut',
+  data:{labels:['Housing','Car Loan','Laptop EMI','Groceries','Fuel','Credit Cards','Dining','Insurance','Gowri','Bills/OTT','Personal'],
+    datasets:[{data:[18750,16090,18000,10000,10000,20000,5000,6266,3500,2833,2500],
+      backgroundColor:['#6366f1','#f43f5e','#f59e0b','#22d3ee','#fb7185','#64748b','#10b981','#a78bfa','#ec4899','#94a3b8','#84cc16'],
+      borderWidth:3,borderColor:'#0c1428',hoverOffset:8}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'58%',
+    plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10},padding:8,color:'#94a3b8'}},
+      tooltip:{callbacks:{label:ctx=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return ' '+fmt(ctx.parsed)+' ('+(ctx.parsed/t*100).toFixed(1)+'%)';}}}}
+  }
+});
 
-    // ── PROJECTION ────────────────────────────────────────────────────
-    function project(start, mo, rate, yrs) {
-        const r=rate/12, pts=[start]; let c=start;
-        for(let m=1;m<=yrs*12;m++){ c=c*(1+r)+mo; if(m%12===0)pts.push(Math.round(c)); }
-        return pts;
-    }
-    const S=1258568, M=70500, Y=25;
-    const xl=['Now',...Array.from({length:Y},(_,i)=>'Yr '+(i+1))];
-    const p10=project(S,M,.10,Y), p12=project(S,M,.12,Y), p15=project(S,M,.15,Y);
+// ── PROJECTION ──
+function proj(s,m,r,y){const mr=r/12,p=[s];let c=s;for(let i=1;i<=y*12;i++){c=c*(1+mr)+m;if(i%12===0)p.push(Math.round(c));}return p;}
+const S=1258568,M=70500,Y=25,xl=['Now',...Array.from({length:Y},(_,i)=>'Yr '+(i+1))];
+new Chart(document.getElementById('projChart'),{
+  type:'line',
+  data:{labels:xl,datasets:[
+    {label:'₹10Cr Target',data:new Array(Y+1).fill(10000000),borderColor:'rgba(244,63,94,.4)',borderDash:[6,4],borderWidth:1.5,pointRadius:0,backgroundColor:'transparent'},
+    {label:'Conservative (10%)',data:proj(S,M,.10,Y),borderColor:'#64748b',backgroundColor:'transparent',borderWidth:2,tension:.4,pointRadius:0,pointHoverRadius:5},
+    {label:'Moderate (12%)',data:proj(S,M,.12,Y),borderColor:'#6366f1',backgroundColor:'rgba(99,102,241,.06)',fill:true,borderWidth:3,tension:.4,pointRadius:0,pointHoverRadius:5},
+    {label:'Aggressive (15%)',data:proj(S,M,.15,Y),borderColor:'#10b981',backgroundColor:'transparent',borderWidth:2,tension:.4,pointRadius:0,pointHoverRadius:5}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+    plugins:{legend:{position:'top',labels:{boxWidth:12,font:{size:11},color:'#94a3b8',padding:14}},
+      tooltip:{backgroundColor:'rgba(12,20,40,.95)',borderColor:'rgba(99,102,241,.3)',borderWidth:1,callbacks:{label:ctx=>' '+ctx.dataset.label+': '+fmt(ctx.parsed.y)}}},
+    scales:{y:{grid:{color:'rgba(148,163,184,.05)'},ticks:{color:'#64748b',callback:v=>v>=1e7?'₹'+(v/1e7).toFixed(0)+'Cr':'₹'+(v/1e5).toFixed(0)+'L'}},
+      x:{grid:{display:false},ticks:{color:'#64748b',maxTicksLimit:10}}}
+  }
+});
 
-    new Chart(document.getElementById('projChart'),{
-        type:'line',
-        data:{
-            labels:xl,
-            datasets:[
-                {label:'₹10Cr Target', data:new Array(Y+1).fill(10000000), borderColor:'rgba(244,63,94,.4)', borderDash:[6,4], borderWidth:1.5, pointRadius:0, backgroundColor:'transparent'},
-                {label:'Conservative (10%)', data:p10, borderColor:'#64748b', backgroundColor:'transparent', borderWidth:2, tension:.4, pointRadius:0, pointHoverRadius:5},
-                {label:'Moderate (12%)', data:p12, borderColor:'#6366f1', backgroundColor:'rgba(99,102,241,.06)', fill:true, borderWidth:3, tension:.4, pointRadius:0, pointHoverRadius:5},
-                {label:'Aggressive (15%)', data:p15, borderColor:'#10b981', backgroundColor:'transparent', borderWidth:2, tension:.4, pointRadius:0, pointHoverRadius:5}
-            ]
-        },
-        options:{
-            responsive:true, maintainAspectRatio:false,
-            interaction:{mode:'index',intersect:false},
-            plugins:{
-                legend:{position:'top',labels:{boxWidth:12,font:{size:12},color:'#94a3b8',padding:16}},
-                tooltip:{backgroundColor:'rgba(12,20,40,.95)',borderColor:'rgba(99,102,241,.3)',borderWidth:1,callbacks:{label:ctx=>' '+ctx.dataset.label+': '+fmt(ctx.parsed.y)}}
-            },
-            scales:{
-                y:{grid:{color:'rgba(148,163,184,.06)'},ticks:{color:'#64748b',callback:v=>v>=1e7?'₹'+(v/1e7).toFixed(0)+'Cr':'₹'+(v/1e5).toFixed(0)+'L'}},
-                x:{grid:{display:false},ticks:{color:'#64748b',maxTicksLimit:10}}
-            }
-        }
-    });
+// ── MILESTONES ──
+function findM(s,m,r,tgt){const mr=r/12;let c=s;for(let i=1;i<=480;i++){c=c*(1+mr)+m;if(c>=tgt)return i;}return null;}
+const mlst=[{l:'₹25L',v:2500000,c:'#22d3ee'},{l:'₹50L',v:5000000,c:'#6366f1'},{l:'₹1 Cr',v:10000000,c:'#a78bfa'},{l:'₹5 Cr',v:50000000,c:'#f59e0b'},{l:'₹10 Cr',v:100000000,c:'#10b981'}];
+const mg=document.getElementById('mgrid');
+mlst.forEach(m=>{const mo=findM(S,M,.12,m.v),yrs=mo?(mo/12).toFixed(1):'–',age=mo?Math.round(32+mo/12):'–';
+  const el=document.createElement('div');el.className='mc';
+  el.innerHTML=`<div class="mcv" style="color:${m.c}">${m.l}</div><div class="mcy">In <strong style="color:${m.c}">${yrs} yrs</strong></div><div class="mca">Age <strong>${age}</strong> · 12% returns</div>`;
+  mg.appendChild(el);
+});
 
-    // ── MILESTONES ────────────────────────────────────────────────────
-    function findMonths(start, mo, rate, target) {
-        const r=rate/12; let c=start;
-        for(let m=1;m<=480;m++){ c=c*(1+r)+mo; if(c>=target)return m; } return null;
-    }
-    const milestones=[
-        {label:'₹25L',  val:2500000,  color:'#22d3ee'},
-        {label:'₹50L',  val:5000000,  color:'#6366f1'},
-        {label:'₹1Cr',  val:10000000, color:'#a78bfa'},
-        {label:'₹5Cr',  val:50000000, color:'#f59e0b'},
-        {label:'₹10Cr', val:100000000,color:'#10b981'},
-    ];
-    const mg=document.getElementById('milestone-grid');
-    milestones.forEach(m=>{
-        const mo=findMonths(S,M,.12,m.val);
-        const yrs=mo?(mo/12).toFixed(1):'–';
-        const age=mo?Math.round(32+mo/12):'–';
-        const el=document.createElement('div');
-        el.className='mc';
-        el.innerHTML=`<div class="mc-val" style="color:${m.color}">${m.label}</div><div class="mc-yrs">In <strong style="color:${m.color}">${yrs} yrs</strong></div><div class="mc-age">Age <strong>${age}</strong> · 12% returns</div>`;
-        mg.appendChild(el);
-    });
+// ── GOAL CARDS ──
+function reqSIP(tgt,cur,n,r){const mr=r/12,fvc=cur*Math.pow(1+mr,n),fn=tgt-fvc;if(fn<=0)return 0;return Math.ceil(fn*mr/((Math.pow(1+mr,n)-1)*(1+mr)));}
+const goals=[
+  {id:'em',name:'Emergency Fund',icon:'🛡',desc:'6 months of expenses · Peace of mind',tgt:600000,cur:232000,n:12,r:.08,col:'#f59e0b',alloc:10000},
+  {id:'gw',name:"Gowri's Education 👧",icon:'🎓',desc:"Mamma's dream · Foreign education by 2043",tgt:15000000,cur:5000,n:204,r:.12,col:'#22d3ee',alloc:0},
+  {id:'ho',name:'House · Bengaluru 🏡',icon:'🏠',desc:'₹45L down payment for ₹1.5Cr home by 2033',tgt:4500000,cur:0,n:84,r:.10,col:'#84cc16',alloc:0},
+  {id:'au',name:'Australia Migration ✈️',icon:'🇦🇺',desc:'PR + setup fund · 2 work trips already done!',tgt:4000000,cur:0,n:72,r:.10,col:'#38bdf8',alloc:0},
+  {id:'fi',name:'Financial Independence',icon:'🦅',desc:'₹50K/month passive · Work becomes a choice',tgt:50000000,cur:1258568,n:204,r:.12,col:'#f43f5e',alloc:23000},
+  {id:'wc',name:'₹10 Crore Wealth',icon:'💎',desc:'Complete freedom by age 55 · Lavish life',tgt:100000000,cur:1258568,n:276,r:.12,col:'#10b981',alloc:23000},
+];
+const gc=document.getElementById('gcards');
+goals.forEach(g=>{
+  const pct=Math.min(g.cur/g.tgt*100,.1<g.cur/g.tgt*100?g.cur/g.tgt*100:.05).toFixed(2);
+  const dispPct=(g.cur/g.tgt*100).toFixed(2);
+  const sip=reqSIP(g.tgt,g.cur,g.n,g.r);
+  const gap=Math.max(0,sip-g.alloc);
+  const el=document.createElement('div');el.className='gcard';
+  el.style.cssText=`border-top:3px solid ${g.col};`;
+  el.innerHTML=`
+    <div class="gcn" style="color:${g.col}">${g.icon} ${g.name}</div>
+    <div class="gcd">${g.desc}</div>
+    <div class="pbg"><div class="pf" data-w="${Math.min(parseFloat(dispPct),100)}" style="background:${g.col};opacity:.9"></div></div>
+    <div class="gcrow">
+      <div><div class="gcs">Current</div><div class="gcv" style="color:${g.col}">${fmt(g.cur)}</div></div>
+      <div style="text-align:center"><div class="gcs">Progress</div><div class="gcv">${dispPct}%</div></div>
+      <div style="text-align:right"><div class="gcs">Target · ${2026+Math.round(g.n/12)}</div><div class="gcv">${fmt(g.tgt)}</div></div>
+    </div>
+    <div class="gcsip">
+      <div><div class="siplab">Required SIP</div><div class="sipval" style="color:${g.col}">${fmt(sip)}/mo</div></div>
+      <div style="text-align:center"><div class="siplab">Contributing</div><div class="sipval" style="color:#10b981">${fmt(g.alloc)}/mo</div></div>
+      <div style="text-align:right"><div class="siplab">Monthly Gap</div><div class="sipval" style="color:${gap>0?'#f43f5e':'#10b981'}">${gap>0?'−'+fmt(gap):'✓ Met'}</div></div>
+    </div>`;
+  gc.appendChild(el);
+});
 
-    // ── SIP CALCULATOR ────────────────────────────────────────────────
-    let sipCh=null;
-    function calcSIP(){
-        const sip=parseFloat(document.getElementById('sip-amt').value)||0;
-        const r=parseFloat(document.getElementById('sip-r').value)/100;
-        const yrs=parseInt(document.getElementById('sip-y').value);
-        const mr=r/12, n=yrs*12;
-        const fv=sip*((Math.pow(1+mr,n)-1)/mr)*(1+mr);
-        const inv=sip*n, gain=fv-inv;
-        document.getElementById('sip-inv').textContent=fmt(inv);
-        document.getElementById('sip-gain').textContent=fmt(gain);
-        document.getElementById('sip-tot').textContent=fmt(fv);
-        const lbls=Array.from({length:yrs},(_,i)=>'Yr '+(i+1));
-        const fvArr=lbls.map((_,i)=>{ const ni=(i+1)*12; return Math.round(sip*((Math.pow(1+mr,ni)-1)/mr)*(1+mr)); });
-        const invArr=lbls.map((_,i)=>sip*(i+1)*12);
-        if(sipCh)sipCh.destroy();
-        sipCh=new Chart(document.getElementById('sipChart'),{
-            type:'bar',
-            data:{labels:lbls,datasets:[
-                {label:'Invested',data:invArr,backgroundColor:'rgba(34,211,238,.4)',borderRadius:4},
-                {label:'Returns', data:fvArr.map((v,i)=>v-invArr[i]),backgroundColor:'rgba(99,102,241,.65)',borderRadius:4}
-            ]},
-            options:{
-                responsive:true,maintainAspectRatio:false,
-                plugins:{legend:{labels:{color:'#94a3b8',boxWidth:10,font:{size:10}}},tooltip:{callbacks:{label:ctx=>' '+fmt(ctx.parsed.y)}}},
-                scales:{
-                    x:{stacked:true,grid:{display:false},ticks:{color:'#64748b',maxTicksLimit:8}},
-                    y:{stacked:true,grid:{color:'rgba(148,163,184,.06)'},ticks:{color:'#64748b',callback:v=>fmtS(v)}}
-                }
-            }
-        });
-    }
-    calcSIP();
+// ── SIP CALC ──
+let sCh=null;
+function cS(){
+  const sip=parseFloat(document.getElementById('sa').value)||0;
+  const r=parseFloat(document.getElementById('sr').value)/100,y=parseInt(document.getElementById('sy').value);
+  const mr=r/12,n=y*12,fv=sip*((Math.pow(1+mr,n)-1)/mr)*(1+mr),inv=sip*n,gain=fv-inv;
+  document.getElementById('si').textContent=fmt(inv);
+  document.getElementById('sg').textContent=fmt(gain);
+  document.getElementById('st').textContent=fmt(fv);
+  const lbls=Array.from({length:y},(_,i)=>'Yr '+(i+1));
+  const fvA=lbls.map((_,i)=>{const ni=(i+1)*12;return Math.round(sip*((Math.pow(1+mr,ni)-1)/mr)*(1+mr));});
+  const iA=lbls.map((_,i)=>sip*(i+1)*12);
+  if(sCh)sCh.destroy();
+  sCh=new Chart(document.getElementById('sipChart'),{
+    type:'bar',
+    data:{labels:lbls,datasets:[{label:'Invested',data:iA,backgroundColor:'rgba(34,211,238,.4)',borderRadius:4},{label:'Returns',data:fvA.map((v,i)=>v-iA[i]),backgroundColor:'rgba(99,102,241,.65)',borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#94a3b8',boxWidth:10,font:{size:10}}},tooltip:{callbacks:{label:ctx=>' '+fmt(ctx.parsed.y)}}},
+      scales:{x:{stacked:true,grid:{display:false},ticks:{color:'#64748b',maxTicksLimit:8}},y:{stacked:true,grid:{color:'rgba(148,163,184,.05)'},ticks:{color:'#64748b',callback:v=>fmtS(v)}}}}
+  });
+}
+cS();
 
-    // ── GOAL CALCULATOR ───────────────────────────────────────────────
-    function calcGoal(){
-        const goal=parseFloat(document.getElementById('g-amt').value)||0;
-        const yrs=parseInt(document.getElementById('g-y').value);
-        const r=parseFloat(document.getElementById('g-r').value)/100;
-        const mr=r/12, n=yrs*12;
-        const sip=goal*mr/(((Math.pow(1+mr,n)-1))*(1+mr));
-        document.getElementById('g-sip').textContent=fmt(Math.ceil(sip));
-        document.getElementById('g-ctx').textContent='To reach '+fmt(goal)+' in '+yrs+' years at '+(r*100).toFixed(1)+'% annual return';
-    }
-    function setGoal(amt,yrs,rate){
-        document.getElementById('g-amt').value=amt;
-        document.getElementById('g-y').value=yrs;
-        document.getElementById('g-r').value=rate;
-        document.getElementById('g-yl').textContent=yrs+' years';
-        document.getElementById('g-rl').textContent=rate+'%';
-        calcGoal();
-    }
-    calcGoal();
+// ── GOAL CALC ──
+function cG(){
+  const goal=parseFloat(document.getElementById('ga').value)||0;
+  const y=parseInt(document.getElementById('gy').value),r=parseFloat(document.getElementById('gr').value)/100;
+  const mr=r/12,n=y*12,sip=goal*mr/(((Math.pow(1+mr,n)-1))*(1+mr));
+  document.getElementById('gsip').textContent=fmt(Math.ceil(sip));
+  document.getElementById('gctx').textContent='To reach '+fmt(goal)+' in '+y+' years at '+(r*100).toFixed(1)+'% annual return';
+}
+function sg(a,y,r){
+  document.getElementById('ga').value=a;document.getElementById('gy').value=y;document.getElementById('gr').value=r;
+  document.getElementById('gyl').textContent=y+' years';document.getElementById('grl').textContent=r+'%';cG();
+}
+cG();
 </script>
 </body>
 </html>
